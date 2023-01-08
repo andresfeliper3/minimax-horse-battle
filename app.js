@@ -14,8 +14,8 @@ function draw() {
 function drawGrid() {
     let column = 0;
     let row = 0;
-    for (let x = 0; x < width; x += width / boxesPerRow) {
-        for (let y = 0; y < height; y += height / boxesPerRow) {
+    for (let x = 0; x <= width; x += width / boxesPerRow) {
+        for (let y = 0; y <= height; y += height / boxesPerRow) {
             stroke(0);
             strokeWeight(1);
             line(x, 0, x, height);
