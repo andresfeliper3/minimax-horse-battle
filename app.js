@@ -1,3 +1,8 @@
+//THIS MAKES THE CODE WORK
+window.setup = setup;
+window.draw = draw;
+window.mouseClicked = mouseClicked;
+
 const boxesPerRow = 8;
 
 let black;
@@ -8,7 +13,10 @@ let boxHeight;
 
 let initialState;
 
-let lastMove = {};
+const horseIndex = { row: 5, col: 5 };
+
+let lastMove = horseIndex;
+let currentHorsePos = {};
 
 const bonusIndex = [
   { row: 0, col: 1 },
@@ -32,8 +40,8 @@ function draw() {
   boxWidth = width / boxesPerRow;
   boxHeight = height / boxesPerRow;
   drawGrid();
+  paintHorse();
 
-  dominateBox();
   paintbonus();
 }
 function drawGrid() {
@@ -51,8 +59,12 @@ function drawGrid() {
   }
 }
 
+function mouseClicked() {
+  dominateBox();
+}
+
 function dominateBox() {
-  if (mouseIsPressed && checkHorseMovement()) {
+  if (checkHorseMovement()) {
     //calculate pos
     //check
     eraseHorse("green");
@@ -98,6 +110,6 @@ function paintbonus() {
   );
 }
 
-//THIS MAKES THE CODE WORK
-window.setup = setup;
-window.draw = draw;
+function paintHorse() {
+  image(white, horseIndex.row * boxWidth + 2, horseIndex.col * boxHeight + 2);
+}
