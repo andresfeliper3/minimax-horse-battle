@@ -3,62 +3,110 @@ window.setup = setup;
 window.draw = draw;
 window.mouseClicked = mouseClicked;
 
-const boxesPerRow = 8;
+const boxesPerx = 8;
 
-let black;
-let white;
+let blackHorseImage;
+let whiteHorseImage;
 let bonusImage;
 let boxWidth;
 let boxHeight;
 
-let initialState;
-
-const horseIndex = { row: 5, col: 5 };
-
-let lastMove = horseIndex;
-let currentHorsePos = {};
+let playerHorseIndex = { x: 5, y: 4 };
+let playerBoxDominated = [];
+playerBoxDominated.push(playerHorseIndex);
+let validMoves = [];
 
 const bonusIndex = [
-  { row: 0, col: 1 },
-  { row: 5, col: 2 },
-  { row: 2, col: 2 },
+  { x: 0, y: 1 },
+  { x: 5, y: 2 },
+  { x: 2, y: 2 },
 ];
 
 function preload() {
-  black = loadImage("src/images/black.png");
-  white = loadImage("src/images/white.png");
+  blackHorseImage = loadImage("src/images/black.png");
+  whiteHorseImage = loadImage("src/images/white.png");
   bonusImage = loadImage("src/images/bonus.png");
 }
 
 function setup() {
   preload();
   createCanvas(500, 500);
-  background(220);
+  updateValidMoves();
 }
 
 function draw() {
-  boxWidth = width / boxesPerRow;
-  boxHeight = height / boxesPerRow;
+  boxWidth = width / boxesPerx;
+  boxHeight = height / boxesPerx;
   drawGrid();
-  paintHorse();
 
-  paintbonus();
+  paintBonus();
+
+  const playerBackgroundColor = "green";
+  paintPlayer(playerHorseIndex, whiteHorseImage, playerBackgroundColor);
 }
+
 function drawGrid() {
-  let column = 0;
-  let row = 0;
+  let accum = 0;
   for (let x = 0; x < width; x += boxWidth) {
     for (let y = 0; y < height; y += boxHeight) {
-      stroke(0);
-      strokeWeight(1);
+      stroke(1.5);
+      strokeWeight(3);
       line(x, 0, x, height); //vertical
       line(0, y, width, y); //horizontal
-      column++;
+      fill(accum % 2 === 0 ? 150 : "white");
+      rect(x, y, 60, 60);
+      accum++;
+      //Draw the dominated boxes by player
+      playerBoxDominated.forEach((box) => {
+        paintBox(box, "green");
+      });
+      //Draw the possible horse moves
+      validMoves.forEach((Vmove) => {
+        paintPossibleMove(Vmove, "blue");
+      });
     }
-    row++;
+    accum++;
   }
 }
 
+function paintBonus() {
+  bonusIndex.forEach((bonus) => {
+    const position = getPositionFromIndex(bonus);
+    image(bonusImage, position.x, position.y);
+  });
+}
+
+function paintPlayer(index, img, color) {
+  //the box background must be painted before the horse, so that the horse can be shown
+  paintBox(index, color);
+  paintHorse(img, index);
+}
+
+/*This function paints rectangles whitout fill to represent the possible moves that player's horse can be take */
+function paintPossibleMove(index, color) {
+  noFill();
+  stroke(color);
+  strokeWeight(4);
+  const position = getPositionFromIndex(index);
+  rect(position.x, position.y, boxWidth, boxHeight);
+}
+
+function paintBox(index, color) {
+  fill(color);
+  const position = getPositionFromIndex(index);
+  rect(position.x, position.y, boxWidth, boxHeight);
+}
+
+function paintHorse(img, index) {
+  const position = getPositionFromIndex(index);
+  image(img, position.x, position.y);
+}
+
+function getPositionFromIndex(index) {
+  return { x: index.x * boxWidth, y: index.y * boxHeight };
+}
+
+/* Click event */
 function mouseClicked() {
   dominateBox();
 }
@@ -67,49 +115,117 @@ function dominateBox() {
   if (checkHorseMovement()) {
     //calculate pos
     //check
-    eraseHorse("green");
-    calculateAndPaintBox("green");
+    eraseHorseFromCurrentBox("green"); //background color to leave
+    placePlayerWhereClicked("green"); //paint background color and change horse index
+    playerBoxDominated.push(playerHorseIndex); //save the horse movement to dominate the Box
+    updateValidMoves(); //update the possible moves that the horse can to do
   }
 }
 
+/*This function checks if the horse move where the player has clicked is valid to move */
 function checkHorseMovement() {
-  let allowMove = true;
-  let boxIndex = calculateBoxIndex(lastMove.x, lastMove.y);
-  let position = { x: boxIndex.row * boxWidth, y: boxIndex.col * boxHeight };
-  console.log("lastMove: ", boxIndex);
-
+  const boxIndex = getIndexFromClickedBox();
+  let allowMove = !checkIfBoxIsDominated(boxIndex);
+  allowMove = validMoves.some(
+    (moves) => moves.x === boxIndex.x && moves.y === boxIndex.y
+  );
   return allowMove;
 }
 
-function eraseHorse(color) {
-  fill(color);
-  rect(lastMove.x, lastMove.y, boxWidth, boxHeight);
-}
-function calculateAndPaintBox(color) {
-  let boxIndex = calculateBoxIndex(mouseX, mouseY);
-  let position = { x: boxIndex.row * boxWidth, y: boxIndex.col * boxHeight };
-  paintBox(position, color);
-}
-
-function calculateBoxIndex(x, y) {
-  let boxRow = Math.floor(x / boxWidth);
-  let boxCol = Math.floor(y / boxHeight);
-  return { row: boxRow, col: boxCol };
-}
-
-function paintBox(position, color) {
-  fill(color);
-  rect(position.x, position.y, boxWidth, boxHeight);
-  image(white, position.x, position.y);
-  lastMove = { x: position.x, y: position.y };
-}
-
-function paintbonus() {
-  bonusIndex.forEach((bonus) =>
-    image(bonusImage, bonus.row * boxWidth + 2, bonus.col * boxHeight + 2)
+/*This function checks if the box is dominated*/
+function checkIfBoxIsDominated(boxIndex) {
+  let boxAvaible = playerBoxDominated.some(
+    (box) => box.x === boxIndex.x && box.y === boxIndex.y
   );
+  return boxAvaible;
+}
+/* This function checks if the box is within the limits to move*/
+function checkTableLimits(boxIndex) {
+  let canMove = false;
+  if (
+    boxIndex.x >= 0 &&
+    boxIndex.x <= 7 &&
+    boxIndex.y >= 0 &&
+    boxIndex.y <= 7
+  ) {
+    canMove = true;
+  }
+  return canMove;
 }
 
-function paintHorse() {
-  image(white, horseIndex.row * boxWidth + 2, horseIndex.col * boxHeight + 2);
+function eraseHorseFromCurrentBox(color) {
+  fill(color);
+  const position = getPositionFromIndex(playerHorseIndex);
+  rect(position.x, position.y, boxWidth, boxHeight);
+}
+
+function placePlayerWhereClicked(color) {
+  const boxIndex = getIndexFromClickedBox();
+  paintBox(boxIndex, color);
+  changeHorseIndex(boxIndex);
+}
+
+function getIndexFromClickedBox() {
+  const position = { x: mouseX, y: mouseY };
+  return getIndexFromPosition(position);
+}
+
+function getIndexFromPosition(position) {
+  let boxx = Math.floor(position.x / boxWidth);
+  let boxy = Math.floor(position.y / boxHeight);
+  return { x: boxx, y: boxy };
+}
+
+function changeHorseIndex(newIndex) {
+  playerHorseIndex = newIndex;
+}
+
+/* This function updates the horse valid moves, that is, the possible moves that player's horse can be take   */
+function updateValidMoves() {
+  validMoves = [];
+  let possibleMove = {};
+  //up
+  //up-left
+  possibleMove = { x: playerHorseIndex.x - 1, y: playerHorseIndex.y - 2 };
+  if (checkTableLimits(possibleMove) && !checkIfBoxIsDominated(possibleMove)) {
+    validMoves.push(possibleMove);
+  }
+  //up-right
+  possibleMove = { x: playerHorseIndex.x + 1, y: playerHorseIndex.y - 2 };
+  if (checkTableLimits(possibleMove) && !checkIfBoxIsDominated(possibleMove)) {
+    validMoves.push(possibleMove);
+  }
+  //down
+  //down-left
+  possibleMove = { x: playerHorseIndex.x - 1, y: playerHorseIndex.y + 2 };
+  if (checkTableLimits(possibleMove) && !checkIfBoxIsDominated(possibleMove)) {
+    validMoves.push(possibleMove);
+  }
+  //down-right
+  possibleMove = { x: playerHorseIndex.x + 1, y: playerHorseIndex.y + 2 };
+  if (checkTableLimits(possibleMove) && !checkIfBoxIsDominated(possibleMove)) {
+    validMoves.push(possibleMove);
+  }
+  //left
+  //left-top
+  possibleMove = { x: playerHorseIndex.x - 2, y: playerHorseIndex.y - 1 };
+  if (checkTableLimits(possibleMove) && !checkIfBoxIsDominated(possibleMove)) {
+    validMoves.push(possibleMove);
+  }
+  //left-down
+  possibleMove = { x: playerHorseIndex.x - 2, y: playerHorseIndex.y + 1 };
+  if (checkTableLimits(possibleMove) && !checkIfBoxIsDominated(possibleMove)) {
+    validMoves.push(possibleMove);
+  }
+  //Right
+  //Right-top
+  possibleMove = { x: playerHorseIndex.x + 2, y: playerHorseIndex.y - 1 };
+  if (checkTableLimits(possibleMove) && !checkIfBoxIsDominated(possibleMove)) {
+    validMoves.push(possibleMove);
+  }
+  //Right-left
+  possibleMove = { x: playerHorseIndex.x + 2, y: playerHorseIndex.y + 1 };
+  if (checkTableLimits(possibleMove) && !checkIfBoxIsDominated(possibleMove)) {
+    validMoves.push(possibleMove);
+  }
 }
