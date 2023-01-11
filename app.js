@@ -16,7 +16,7 @@ let playerBoxDominated = [];
 playerBoxDominated.push(playerHorseIndex);
 let validMoves = [];
 
-const bonusIndex = [
+let bonusIndex = [
   { x: 0, y: 1 },
   { x: 5, y: 2 },
   { x: 2, y: 2 },
@@ -114,6 +114,10 @@ function mouseClicked() {
 function dominateBox() {
   if (checkHorseMovement()) {
     placePlayerWhereClicked("green"); //paint background color and change horse index
+    //checks if the box where the player has moved has a bonus
+    if (checkIfBoxHasBonus(playerHorseIndex)) {
+      dominateAdjacents(playerHorseIndex); //Horse dominates the adjacents boxes
+    }
     playerBoxDominated.push(playerHorseIndex); //save the horse movement to dominate the Box
     updateValidMoves(); //update the possible moves that the horse can to do
   }
@@ -136,6 +140,47 @@ function checkIfBoxIsDominated(boxIndex) {
   );
   return boxDominated;
 }
+
+/*This function checks if the box has a bonus*/
+function checkIfBoxHasBonus(boxIndex) {
+  const boxWithBonus = bonusIndex.some(
+    (box) => box.x === boxIndex.x && box.y === boxIndex.y
+  );
+  return boxWithBonus;
+}
+
+/*This function dominates the boxes adjacents to the bonus*/
+function dominateAdjacents(boxIndex) {
+  let possibleBox = {};
+  //top
+  possibleBox = { x: boxIndex.x - 1, y: boxIndex.y };
+  if (checkTableLimits(possibleBox) && !checkIfBoxIsDominated(possibleBox)) {
+    playerBoxDominated.push(possibleBox);
+  }
+  //down
+  possibleBox = { x: boxIndex.x + 1, y: boxIndex.y };
+  if (checkTableLimits(possibleBox) && !checkIfBoxIsDominated(possibleBox)) {
+    playerBoxDominated.push(possibleBox);
+  }
+  //left
+  possibleBox = { x: boxIndex.x, y: boxIndex.y - 1 };
+  if (checkTableLimits(possibleBox) && !checkIfBoxIsDominated(possibleBox)) {
+    playerBoxDominated.push(possibleBox);
+  }
+  //right
+  possibleBox = { x: boxIndex.x, y: boxIndex.y + 1 };
+  if (checkTableLimits(possibleBox) && !checkIfBoxIsDominated(possibleBox)) {
+    playerBoxDominated.push(possibleBox);
+  }
+  updateAvaibleBonuses(boxIndex);
+}
+
+function updateAvaibleBonuses(boxIndex) {
+  bonusIndex = bonusIndex.filter(
+    (box) => box.x !== boxIndex.x || box.y !== boxIndex.y
+  );
+}
+
 /* This function checks if the box is within the limits to move*/
 function checkTableLimits(boxIndex) {
   let canMove = false;
