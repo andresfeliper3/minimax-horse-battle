@@ -113,9 +113,6 @@ function mouseClicked() {
 
 function dominateBox() {
   if (checkHorseMovement()) {
-    //calculate pos
-    //check
-    eraseHorseFromCurrentBox("green"); //background color to leave
     placePlayerWhereClicked("green"); //paint background color and change horse index
     playerBoxDominated.push(playerHorseIndex); //save the horse movement to dominate the Box
     updateValidMoves(); //update the possible moves that the horse can to do
@@ -151,12 +148,6 @@ function checkTableLimits(boxIndex) {
     canMove = true;
   }
   return canMove;
-}
-
-function eraseHorseFromCurrentBox(color) {
-  fill(color);
-  const position = getPositionFromIndex(playerHorseIndex);
-  rect(position.x, position.y, boxWidth, boxHeight);
 }
 
 function placePlayerWhereClicked(color) {
