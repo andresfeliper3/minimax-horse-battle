@@ -22,32 +22,38 @@ export default class Controller {
 
     createInitialGameboard() {
         this.bonusIndex = [];
-        this.playerHorseIndex = { x: this.generateRandomIndex(), y: this.generateRandomIndex() }
-        this.iaHorseIndex = { x: this.generateRandomIndex(), y: this.generateRandomIndex() }
+        this.playerHorseIndex = this.generateRandomIndex()
+        this.iaHorseIndex = this.generateRandomIndex()
 
         for (let i = 0; i < 3; i++) {
-            this.bonusIndex.push({ x: this.generateRandomIndex(), y: this.generateRandomIndex() })
+            this.bonusIndex.push(this.generateRandomIndex())
         }
 
         this.gameboard = [];
         for (let row = 0; row < this.boxesPerRow; row++) {
             this.gameboard.push([]);
         }
-        for (let i = 0; i < this.boxesPerRow; i++) {
-            for (let j = 0; j < this.boxesPerColumn; j++) {
-                this.gameboard[i][j] = EMPTY;
+        for (let y = 0; y < this.boxesPerRow; y++) {
+            for (let x = 0; x < this.boxesPerColumn; x++) {
+                this.gameboard[y][x] = EMPTY;
             }
         }
+
+        this.gameboard[this.playerHorseIndex.y][this.playerHorseIndex.x] = PLAYER_HORSE;
+        this.gameboard[this.iaHorseIndex.y][this.iaHorseIndex.x] = IA_HORSE;
+        this.bonusIndex.forEach((bonus) => {
+            this.gameboard[bonus.y][bonus.x] = BONUS;
+        })
+
         console.log(this.gameboard)
-
-
 
     }
 
     //Generates number from zero to this.boxesPerRow - 1
     generateRandomIndex() {
-        return Math.floor(Math.random() * this.boxesPerRow);
+        return { x: Math.floor(Math.random() * this.boxesPerRow), y: Math.floor(Math.random() * this.boxesPerColumn) };
     }
+
 
 
     executeMinimax() {
