@@ -1,3 +1,4 @@
+import MiniMax from "./algorithm/miniMax.js";
 
 //THIS MAKES THE CODE WORK
 window.setup = setup;

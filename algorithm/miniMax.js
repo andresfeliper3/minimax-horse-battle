@@ -1,6 +1,6 @@
-import { Node } from "./Node";
+import Node from "./Node.js";
 
-export class MiniMax {
+export default class MiniMax {
     constructor(initialGameboard) {
         this.initialGameboard = initialGameboard;
     }
