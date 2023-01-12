@@ -1,12 +1,17 @@
-import MiniMax from "./algorithm/miniMax.js";
+import Controller from "./algorithm/Controller.js";
+
+const IA_TURN = true;
+const PLAYER_TURN = false;
 
 //THIS MAKES THE CODE WORK
 window.setup = setup;
 window.draw = draw;
 window.mouseClicked = mouseClicked;
 
+const controller = new Controller();
+controller.createInitialGameboard();
 
-const boxesPerx = 8;
+const boxesPerRow = 8;
 
 let blackHorseImage;
 let whiteHorseImage;
@@ -14,16 +19,14 @@ let bonusImage;
 let boxWidth;
 let boxHeight;
 
-let playerHorseIndex = { x: 5, y: 4 };
+let playerHorseIndex = controller.getPlayerHorseIndex();
+let iaHorseIndex = controller.getIaHorseIndex();
+
 let playerBoxDominated = [];
 playerBoxDominated.push(playerHorseIndex);
 let validMoves = [];
 
-let bonusIndex = [
-  { x: 0, y: 1 },
-  { x: 5, y: 2 },
-  { x: 2, y: 2 },
-];
+let bonusIndex = controller.getBonusIndex();
 
 function preload() {
   blackHorseImage = loadImage("src/images/black.png");
@@ -38,14 +41,17 @@ function setup() {
 }
 
 function draw() {
-  boxWidth = width / boxesPerx;
-  boxHeight = height / boxesPerx;
+  boxWidth = width / boxesPerRow;
+  boxHeight = height / boxesPerRow;
   drawGrid();
 
   paintBonus();
 
   const playerBackgroundColor = "green";
   paintPlayer(playerHorseIndex, whiteHorseImage, playerBackgroundColor);
+
+  const iaBackgroundColor = "red";
+  paintPlayer(iaHorseIndex, blackHorseImage, iaBackgroundColor);
 }
 
 function drawGrid() {
@@ -111,7 +117,9 @@ function getPositionFromIndex(index) {
 
 /* Click event */
 function mouseClicked() {
-  dominateBox();
+  if (controller.getTurn() == PLAYER_TURN) {
+    dominateBox();
+  }
 }
 
 function dominateBox() {
