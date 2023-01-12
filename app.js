@@ -1,7 +1,9 @@
+
 //THIS MAKES THE CODE WORK
 window.setup = setup;
 window.draw = draw;
 window.mouseClicked = mouseClicked;
+
 
 const boxesPerx = 8;
 
