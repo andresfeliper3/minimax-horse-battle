@@ -56,6 +56,7 @@ function draw() {
 
   const playerBackgroundColor = "green";
   paintPlayer(playerHorseIndex, whiteHorseImage, playerBackgroundColor);
+  updateValidMoves();
 }
 
 function drawGrid() {
@@ -70,20 +71,13 @@ function drawGrid() {
       rect(x, y, 60, 60);
       accum++;
       //Draw the dominated boxes by player
-      /*
+
       playerBoxDominated.forEach((box) => {
         paintBox(box, "green");
       });
-*/
+
       //
       const position = { x, y };
-      if (
-        controller.getGameBoard()[getIndexFromPosition(position).y][
-          getIndexFromPosition(position).x
-        ] == DOMINATED_BY_PLAYER
-      ) {
-        paintBox(getIndexFromPosition(position), "green");
-      }
       if (
         controller.getGameBoard()[getIndexFromPosition(position).y][
           getIndexFromPosition(position).x
@@ -163,7 +157,7 @@ function dominateBox() {
       dominateAdjacents(playerHorseIndex); //Horse dominates the adjacents boxes
     }
     playerBoxDominated.push(playerHorseIndex); //save the horse movement to dominate the Box
-    updateValidMoves(); //update the possible moves that the horse can to do
+    //updateValidMoves(); //update the possible moves that the horse can to do
     console.log("after play: ", controller.getGameBoard());
     gameBoard[playerHorseIndex.y][playerHorseIndex.x] = PLAYER_HORSE;
     controller.changeTurn();
