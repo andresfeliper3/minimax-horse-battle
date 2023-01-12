@@ -1,5 +1,12 @@
 import Controller from "./algorithm/Controller.js";
 
+/** GAMEBOARD CONSTANTS */
+const EMPTY = 0;
+const PLAYER_HORSE = 1;
+const IA_HORSE = 2;
+const BONUS = 3;
+const DOMINATED_BY_PLAYER = 4;
+const DOMINATED_BY_IA = 5;
 const IA_TURN = true;
 const PLAYER_TURN = false;
 
@@ -49,9 +56,6 @@ function draw() {
 
   const playerBackgroundColor = "green";
   paintPlayer(playerHorseIndex, whiteHorseImage, playerBackgroundColor);
-
-  const iaBackgroundColor = "red";
-  paintPlayer(iaHorseIndex, blackHorseImage, iaBackgroundColor);
 }
 
 function drawGrid() {
@@ -66,9 +70,36 @@ function drawGrid() {
       rect(x, y, 60, 60);
       accum++;
       //Draw the dominated boxes by player
+      /*
       playerBoxDominated.forEach((box) => {
         paintBox(box, "green");
       });
+*/
+      //
+      const position = { x, y };
+      if (
+        controller.getGameBoard()[getIndexFromPosition(position).y][
+          getIndexFromPosition(position).x
+        ] == DOMINATED_BY_PLAYER
+      ) {
+        paintBox(getIndexFromPosition(position), "green");
+      }
+      if (
+        controller.getGameBoard()[getIndexFromPosition(position).y][
+          getIndexFromPosition(position).x
+        ] == IA_HORSE
+      ) {
+        iaHorseIndex = getIndexFromPosition(position);
+        paintPlayer(iaHorseIndex, blackHorseImage, "red");
+      }
+      if (
+        controller.getGameBoard()[getIndexFromPosition(position).y][
+          getIndexFromPosition(position).x
+        ] == DOMINATED_BY_IA
+      ) {
+        paintBox(getIndexFromPosition(position), "red");
+      }
+
       //Draw the possible horse moves
       validMoves.forEach((Vmove) => {
         paintPossibleMove(Vmove, "blue");
@@ -124,6 +155,8 @@ function mouseClicked() {
 
 function dominateBox() {
   if (checkHorseMovement()) {
+    let gameBoard = controller.getGameBoard();
+    gameBoard[playerHorseIndex.y][playerHorseIndex.x] = DOMINATED_BY_PLAYER;
     placePlayerWhereClicked("green"); //paint background color and change horse index
     //checks if the box where the player has moved has a bonus
     if (checkIfBoxHasBonus(playerHorseIndex)) {
@@ -131,6 +164,10 @@ function dominateBox() {
     }
     playerBoxDominated.push(playerHorseIndex); //save the horse movement to dominate the Box
     updateValidMoves(); //update the possible moves that the horse can to do
+    console.log("after play: ", controller.getGameBoard());
+    gameBoard[playerHorseIndex.y][playerHorseIndex.x] = PLAYER_HORSE;
+    controller.changeTurn();
+    controller.executeMinimax();
   }
 }
 
@@ -146,9 +183,16 @@ function checkHorseMovement() {
 
 /*This function checks if the box is dominated*/
 function checkIfBoxIsDominated(boxIndex) {
-  const boxDominated = playerBoxDominated.some(
+  let boxDominated = playerBoxDominated.some(
     (box) => box.x === boxIndex.x && box.y === boxIndex.y
   );
+  if (
+    controller.getGameBoard()[boxIndex.y][boxIndex.x] == IA_HORSE ||
+    controller.getGameBoard()[boxIndex.y][boxIndex.x] == DOMINATED_BY_IA
+  ) {
+    boxDominated = true;
+  }
+
   return boxDominated;
 }
 
