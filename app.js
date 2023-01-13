@@ -201,27 +201,39 @@ function checkIfBoxHasBonus(boxIndex) {
 /*This function dominates the boxes adjacents to the bonus*/
 function dominateAdjacents(boxIndex) {
   let possibleBox = {};
-  //top
+  let gameBoard = controller.getGameBoard();
+
+  //left
   possibleBox = { x: boxIndex.x - 1, y: boxIndex.y };
   if (checkTableLimits(possibleBox) && !checkIfBoxIsDominated(possibleBox)) {
     playerBoxDominated.push(possibleBox);
+    gameBoard[possibleBox.y][possibleBox.x] = DOMINATED_BY_PLAYER;
   }
-  //down
+  //right
   possibleBox = { x: boxIndex.x + 1, y: boxIndex.y };
   if (checkTableLimits(possibleBox) && !checkIfBoxIsDominated(possibleBox)) {
     playerBoxDominated.push(possibleBox);
+    gameBoard[possibleBox.y][possibleBox.x] = DOMINATED_BY_PLAYER;
   }
-  //left
+  //up
   possibleBox = { x: boxIndex.x, y: boxIndex.y - 1 };
   if (checkTableLimits(possibleBox) && !checkIfBoxIsDominated(possibleBox)) {
     playerBoxDominated.push(possibleBox);
+    gameBoard[possibleBox.y][possibleBox.x] = DOMINATED_BY_PLAYER;
   }
-  //right
+  //down
   possibleBox = { x: boxIndex.x, y: boxIndex.y + 1 };
   if (checkTableLimits(possibleBox) && !checkIfBoxIsDominated(possibleBox)) {
     playerBoxDominated.push(possibleBox);
+    gameBoard[possibleBox.y][possibleBox.x] = DOMINATED_BY_PLAYER;
+    console.log(
+      "HASDASD: ",
+      gameBoard[possibleBox.y][possibleBox.x],
+      DOMINATED_BY_PLAYER
+    );
   }
   updateAvaibleBonuses(boxIndex);
+  console.log("after: ", gameBoard);
 }
 
 function updateAvaibleBonuses(boxIndex) {
