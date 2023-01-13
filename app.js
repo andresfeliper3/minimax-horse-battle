@@ -29,11 +29,7 @@ let boxHeight;
 let playerHorseIndex = controller.getPlayerHorseIndex();
 let iaHorseIndex = controller.getIaHorseIndex();
 
-let playerBoxDominated = [];
-playerBoxDominated.push(playerHorseIndex);
 let validMoves = [];
-
-let bonusIndex = controller.getBonusIndex();
 
 function preload() {
   blackHorseImage = loadImage("src/images/black.png");
@@ -52,8 +48,6 @@ function draw() {
   boxHeight = height / boxesPerRow;
   drawGrid();
 
-  paintBonus();
-
   const playerBackgroundColor = "green";
   paintPlayer(playerHorseIndex, whiteHorseImage, playerBackgroundColor);
   updateValidMoves();
@@ -71,13 +65,23 @@ function drawGrid() {
       rect(x, y, 60, 60);
       accum++;
       //Draw the dominated boxes by player
-
-      playerBoxDominated.forEach((box) => {
-        paintBox(box, "green");
-      });
-
       //
       const position = { x, y };
+      if (
+        controller.getGameBoard()[getIndexFromPosition(position).y][
+          getIndexFromPosition(position).x
+        ] == BONUS
+      ) {
+        paintBonus(position);
+      }
+
+      if (
+        controller.getGameBoard()[getIndexFromPosition(position).y][
+          getIndexFromPosition(position).x
+        ] == DOMINATED_BY_PLAYER
+      ) {
+        paintBox(getIndexFromPosition(position), "green");
+      }
       if (
         controller.getGameBoard()[getIndexFromPosition(position).y][
           getIndexFromPosition(position).x
@@ -103,11 +107,8 @@ function drawGrid() {
   }
 }
 
-function paintBonus() {
-  bonusIndex.forEach((bonus) => {
-    const position = getPositionFromIndex(bonus);
-    image(bonusImage, position.x, position.y);
-  });
+function paintBonus(index) {
+  image(bonusImage, index.x, index.y);
 }
 
 function paintPlayer(index, img, color) {
@@ -156,7 +157,6 @@ function dominateBox() {
     if (checkIfBoxHasBonus(playerHorseIndex)) {
       dominateAdjacents(playerHorseIndex); //Horse dominates the adjacents boxes
     }
-    playerBoxDominated.push(playerHorseIndex); //save the horse movement to dominate the Box
     //updateValidMoves(); //update the possible moves that the horse can to do
     console.log("after play: ", controller.getGameBoard());
     gameBoard[playerHorseIndex.y][playerHorseIndex.x] = PLAYER_HORSE;
@@ -177,12 +177,11 @@ function checkHorseMovement() {
 
 /*This function checks if the box is dominated*/
 function checkIfBoxIsDominated(boxIndex) {
-  let boxDominated = playerBoxDominated.some(
-    (box) => box.x === boxIndex.x && box.y === boxIndex.y
-  );
+  let boxDominated;
   if (
     controller.getGameBoard()[boxIndex.y][boxIndex.x] == IA_HORSE ||
-    controller.getGameBoard()[boxIndex.y][boxIndex.x] == DOMINATED_BY_IA
+    controller.getGameBoard()[boxIndex.y][boxIndex.x] == DOMINATED_BY_IA ||
+    controller.getGameBoard()[boxIndex.y][boxIndex.x] == DOMINATED_BY_PLAYER
   ) {
     boxDominated = true;
   }
@@ -192,9 +191,10 @@ function checkIfBoxIsDominated(boxIndex) {
 
 /*This function checks if the box has a bonus*/
 function checkIfBoxHasBonus(boxIndex) {
-  const boxWithBonus = bonusIndex.some(
-    (box) => box.x === boxIndex.x && box.y === boxIndex.y
-  );
+  let boxWithBonus;
+  if (controller.getGameBoard()[boxIndex.y][boxIndex.x] == BONUS) {
+    boxWithBonus = true;
+  }
   return boxWithBonus;
 }
 
@@ -206,40 +206,23 @@ function dominateAdjacents(boxIndex) {
   //left
   possibleBox = { x: boxIndex.x - 1, y: boxIndex.y };
   if (checkTableLimits(possibleBox) && !checkIfBoxIsDominated(possibleBox)) {
-    playerBoxDominated.push(possibleBox);
     gameBoard[possibleBox.y][possibleBox.x] = DOMINATED_BY_PLAYER;
   }
   //right
   possibleBox = { x: boxIndex.x + 1, y: boxIndex.y };
   if (checkTableLimits(possibleBox) && !checkIfBoxIsDominated(possibleBox)) {
-    playerBoxDominated.push(possibleBox);
     gameBoard[possibleBox.y][possibleBox.x] = DOMINATED_BY_PLAYER;
   }
   //up
   possibleBox = { x: boxIndex.x, y: boxIndex.y - 1 };
   if (checkTableLimits(possibleBox) && !checkIfBoxIsDominated(possibleBox)) {
-    playerBoxDominated.push(possibleBox);
     gameBoard[possibleBox.y][possibleBox.x] = DOMINATED_BY_PLAYER;
   }
   //down
   possibleBox = { x: boxIndex.x, y: boxIndex.y + 1 };
   if (checkTableLimits(possibleBox) && !checkIfBoxIsDominated(possibleBox)) {
-    playerBoxDominated.push(possibleBox);
     gameBoard[possibleBox.y][possibleBox.x] = DOMINATED_BY_PLAYER;
-    console.log(
-      "HASDASD: ",
-      gameBoard[possibleBox.y][possibleBox.x],
-      DOMINATED_BY_PLAYER
-    );
   }
-  updateAvaibleBonuses(boxIndex);
-  console.log("after: ", gameBoard);
-}
-
-function updateAvaibleBonuses(boxIndex) {
-  bonusIndex = bonusIndex.filter(
-    (box) => box.x !== boxIndex.x || box.y !== boxIndex.y
-  );
 }
 
 /* This function checks if the box is within the limits to move*/
