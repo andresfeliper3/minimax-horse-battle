@@ -23,14 +23,6 @@ export default class Controller {
   }
 
   createInitialGameboard() {
-    this.bonusIndex = [];
-    this.playerHorseIndex = this.generateRandomIndex();
-    this.iaHorseIndex = this.generateRandomIndex();
-    console.log("original: ", this.iaHorseIndex);
-    for (let i = 0; i < 3; i++) {
-      this.bonusIndex.push(this.generateRandomIndex());
-    }
-
     this.gameboard = [];
     for (let row = 0; row < this.boxesPerRow; row++) {
       this.gameboard.push([]);
@@ -40,13 +32,20 @@ export default class Controller {
         this.gameboard[y][x] = EMPTY;
       }
     }
+    this.bonusIndex = [];
+    this.playerHorseIndex = this.generateNonSuperPositionIndex();
 
     this.gameboard[this.playerHorseIndex.y][this.playerHorseIndex.x] =
       PLAYER_HORSE;
+    this.iaHorseIndex = this.generateNonSuperPositionIndex();
     this.gameboard[this.iaHorseIndex.y][this.iaHorseIndex.x] = IA_HORSE;
-    this.bonusIndex.forEach((bonus) => {
-      this.gameboard[bonus.y][bonus.x] = BONUS;
-    });
+
+    for (let i = 0; i < 3; i++) {
+      const index = this.generateNonSuperPositionIndex();
+      this.bonusIndex.push(index);
+      this.gameboard[index.y][index.x] = BONUS;
+    }
+
     console.log(this.iaHorseIndex);
     console.log(this.gameboard);
   }
@@ -57,6 +56,18 @@ export default class Controller {
       x: Math.floor(Math.random() * this.boxesPerRow),
       y: Math.floor(Math.random() * this.boxesPerColumn),
     };
+  }
+
+  generateNonSuperPositionIndex() {
+    let possiblePosition = {};
+    while (true) {
+      possiblePosition = this.generateRandomIndex();
+      if (this.gameboard[possiblePosition.y][possiblePosition.x] == EMPTY) {
+        break;
+      }
+    }
+
+    return possiblePosition;
   }
 
   //ToDo: delete minimax instance
