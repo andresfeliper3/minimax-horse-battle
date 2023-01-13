@@ -41,7 +41,7 @@ export default class Controller {
     this.gameboard[this.iaHorseIndex.y][this.iaHorseIndex.x] = IA_HORSE;
 
     for (let i = 0; i < 3; i++) {
-      const index = this.generateNonSuperPositionIndex();
+      const index = this.generateBonusIndex();
       this.bonusIndex.push(index);
       this.gameboard[index.y][index.x] = BONUS;
     }
@@ -68,6 +68,86 @@ export default class Controller {
     }
 
     return possiblePosition;
+  }
+
+  generateBonusIndex() {
+    let possiblePosition = {};
+    while (true) {
+      possiblePosition = this.generateRandomIndex();
+
+      if (this.conditions(possiblePosition)) {
+        break;
+      }
+    }
+    return possiblePosition;
+  }
+
+  conditions(possiblePosition) {
+    //check this later
+    let condition =
+      this.gameboard[possiblePosition.y][possiblePosition.x] == EMPTY;
+
+    if (possiblePosition.x >= 0 && possiblePosition.x < 7) {
+      condition =
+        condition &&
+        this.gameboard[possiblePosition.y][possiblePosition.x + 1] != BONUS;
+    }
+    if (possiblePosition.x <= 7 && possiblePosition.x > 0) {
+      condition =
+        condition &&
+        this.gameboard[possiblePosition.y][possiblePosition.x - 1] != BONUS;
+    }
+    if (possiblePosition.y >= 0 && possiblePosition.y < 7) {
+      condition =
+        condition &&
+        this.gameboard[possiblePosition.y + 1][possiblePosition.x] != BONUS;
+    }
+    if (possiblePosition.y <= 7 && possiblePosition.y > 0) {
+      condition =
+        condition &&
+        this.gameboard[possiblePosition.y - 1][possiblePosition.x] != BONUS;
+    }
+    if (
+      possiblePosition.x >= 0 &&
+      possiblePosition.x < 7 &&
+      possiblePosition.y <= 7 &&
+      possiblePosition.y > 0
+    ) {
+      condition =
+        condition &&
+        this.gameboard[possiblePosition.y - 1][possiblePosition.x + 1] != BONUS;
+    }
+    if (
+      possiblePosition.y <= 7 &&
+      possiblePosition.y > 0 &&
+      possiblePosition.x <= 7 &&
+      possiblePosition.x > 0
+    ) {
+      condition =
+        condition &&
+        this.gameboard[possiblePosition.y - 1][possiblePosition.x - 1] != BONUS;
+    }
+    if (
+      possiblePosition.y >= 0 &&
+      possiblePosition.y < 7 &&
+      possiblePosition.x <= 7 &&
+      possiblePosition.x > 0
+    ) {
+      condition =
+        condition &&
+        this.gameboard[possiblePosition.y + 1][possiblePosition.x - 1] != BONUS;
+    }
+    if (
+      possiblePosition.y >= 0 &&
+      possiblePosition.y < 7 &&
+      possiblePosition.x >= 0 &&
+      possiblePosition.x < 7
+    ) {
+      condition =
+        condition &&
+        this.gameboard[possiblePosition.y + 1][possiblePosition.x + 1] != BONUS;
+    }
+    return condition;
   }
 
   //ToDo: delete minimax instance
@@ -116,16 +196,16 @@ export default class Controller {
 
   /* This function checks if the box is within the limits to move*/
   checkTableLimits(boxIndex) {
-    let canMove = false;
+    let correct = false;
     if (
       boxIndex.x >= 0 &&
       boxIndex.x <= 7 &&
       boxIndex.y >= 0 &&
       boxIndex.y <= 7
     ) {
-      canMove = true;
+      correct = true;
     }
-    return canMove;
+    return correct;
   }
 
   /*This function checks if the box is dominated*/
