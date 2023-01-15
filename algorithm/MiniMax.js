@@ -34,7 +34,7 @@ export default class MiniMax {
 
   executeMinimax() {
     this.nodes = []
-    const initialNode = new Node(this.initialGameboard, this.iaHorseIndex, null)
+    const initialNode = new Node(this.initialGameboard, this.iaHorseIndex, null, MAX, this.iaHorseIndex)
     initialNode.setDepth(0);
     initialNode.setType(MAX);
     this.nodes.push(initialNode)
@@ -60,7 +60,7 @@ export default class MiniMax {
         const father = currentNode.getFather();
         const utilityChanged = father.setUtility(utility);
         if (utilityChanged) {
-          father.setIaHorseIndexSelected(currentNode.getIaHorseIndex());
+          father.setIaHorseIndexSelected(currentNode.getHorseIndex());
         }
         //delete
         this.nodes = this.nodes.filter((node, index) => {
@@ -80,13 +80,14 @@ export default class MiniMax {
 
 
   expandNode(node) {
-    node.updateValidMoves()
+    const horseIndex = node.getType() == MAX ? this.iaHorseIndex : this.playerHorseIndex;
+    node.updateValidMoves(horseIndex)
     let validMoves = node.getValidMoves()
 
     validMoves.forEach(move => {
-      const newNode = new Node(this.initialGameboard, move, node);
+
+      const newNode = new Node(node.getGameboard(), move, node, !node.getType(), horseIndex);
       newNode.setDepth(node.getDepth() + 1);
-      newNode.setType(!node.getType());
       this.nodes.push(newNode);
     })
   }

@@ -12,12 +12,19 @@ const MAX = true;
 const MIN = false;
 export default class Node {
 
-  constructor(gameboard, iaHorseIndex, father) {
+  constructor(gameboard, horseIndex, father, type, previousHorseIndex) {
+    this.type = type;
+    this.previousHorseIndex = previousHorseIndex;
+    this.horseIndex = horseIndex;
     this.gameboard = gameboard;
-    this.iaHorseIndex = iaHorseIndex
+    this.gameboard[horseIndex.y][horseIndex.x] = type == MAX ? IA_HORSE : PLAYER_HORSE;
+    this.gameboard[previousHorseIndex.y][previousHorseIndex.x] = type == MAX ? DOMINATED_BY_IA : DOMINATED_BY_PLAYER;
     this.father = father
   }
 
+  getGameboard() {
+    return this.gameboard;
+  }
   getFather() {
     return this.father;
   }
@@ -49,8 +56,8 @@ export default class Node {
   setIaHorseIndexSelected(iaHorseIndexSelected) {
     this.iaHorseIndexSelected = iaHorseIndexSelected;
   }
-  getIaHorseIndex() {
-    return this.iaHorseIndex
+  getHorseIndex() {
+    return this.horseIndex
   }
 
   hasNoUtility() {
@@ -91,50 +98,50 @@ export default class Node {
   }
 
   /* This function updates the horse valid moves, that is, the possible moves that player's horse can be take   */
-  updateValidMoves() {
+  updateValidMoves(horseIndex) {
     this.validMoves = [];
     let possibleMove = {};
     //up
     //up-left
-    possibleMove = { x: this.iaHorseIndex.x - 1, y: this.iaHorseIndex.y - 2 };
+    possibleMove = { x: horseIndex.x - 1, y: horseIndex.y - 2 };
     if (this.checkTableLimits(possibleMove) && !this.checkIfBoxIsDominated(possibleMove)) {
       this.validMoves.push(possibleMove);
     }
     //up-right
-    possibleMove = { x: this.iaHorseIndex.x + 1, y: this.iaHorseIndex.y - 2 };
+    possibleMove = { x: horseIndex.x + 1, y: horseIndex.y - 2 };
     if (this.checkTableLimits(possibleMove) && !this.checkIfBoxIsDominated(possibleMove)) {
       this.validMoves.push(possibleMove);
     }
     //down
     //down-left
-    possibleMove = { x: this.iaHorseIndex.x - 1, y: this.iaHorseIndex.y + 2 };
+    possibleMove = { x: horseIndex.x - 1, y: horseIndex.y + 2 };
     if (this.checkTableLimits(possibleMove) && !this.checkIfBoxIsDominated(possibleMove)) {
       this.validMoves.push(possibleMove);
     }
     //down-right
-    possibleMove = { x: this.iaHorseIndex.x + 1, y: this.iaHorseIndex.y + 2 };
+    possibleMove = { x: horseIndex.x + 1, y: horseIndex.y + 2 };
     if (this.checkTableLimits(possibleMove) && !this.checkIfBoxIsDominated(possibleMove)) {
       this.validMoves.push(possibleMove);
     }
     //left
     //left-top
-    possibleMove = { x: this.iaHorseIndex.x - 2, y: this.iaHorseIndex.y - 1 };
+    possibleMove = { x: horseIndex.x - 2, y: horseIndex.y - 1 };
     if (this.checkTableLimits(possibleMove) && !this.checkIfBoxIsDominated(possibleMove)) {
       this.validMoves.push(possibleMove);
     }
     //left-down
-    possibleMove = { x: this.iaHorseIndex.x - 2, y: this.iaHorseIndex.y + 1 };
+    possibleMove = { x: horseIndex.x - 2, y: horseIndex.y + 1 };
     if (this.checkTableLimits(possibleMove) && !this.checkIfBoxIsDominated(possibleMove)) {
       this.validMoves.push(possibleMove);
     }
     //Right
     //Right-top
-    possibleMove = { x: this.iaHorseIndex.x + 2, y: this.iaHorseIndex.y - 1 };
+    possibleMove = { x: horseIndex.x + 2, y: horseIndex.y - 1 };
     if (this.checkTableLimits(possibleMove) && !this.checkIfBoxIsDominated(possibleMove)) {
       this.validMoves.push(possibleMove);
     }
     //Right-left
-    possibleMove = { x: this.iaHorseIndex.x + 2, y: this.iaHorseIndex.y + 1 };
+    possibleMove = { x: horseIndex.x + 2, y: horseIndex.y + 1 };
     if (this.checkTableLimits(possibleMove) && !this.checkIfBoxIsDominated(possibleMove)) {
       this.validMoves.push(possibleMove);
     }
