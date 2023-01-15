@@ -8,35 +8,57 @@ const DOMINATED_BY_IA = 5;
 const IA_TURN = true;
 const PLAYER_TURN = false;
 
+const MAX = true;
+const MIN = false;
 export default class Node {
 
-    constructor(gameboard,iaHorseIndex, father) {
-        this.gameboard = gameboard;
-        this.iaHorseIndex = iaHorseIndex
-        this.father = father
-    }
+  constructor(gameboard, iaHorseIndex, father) {
+    this.gameboard = gameboard;
+    this.iaHorseIndex = iaHorseIndex
+    this.father = father
+  }
 
-    setDepth(depth) {
-        this.depth = depth;
+  getFather() {
+    return this.father;
+  }
+  setDepth(depth) {
+    this.depth = depth;
+  }
+  getDepth() {
+    return this.depth;
+  }
+  setType(type) {
+    this.type = type;
+    if (this.type == MAX) {
+      this.utility = -Infinity
     }
-    setType(type) {
-        this.type = type;
-        if(this.type){
-            this.utility = -Infinity    
-        }
-        else{
-            this.utility = Infinity
-        }
+    else {
+      this.utility = Infinity
     }
-    setUtility(utility) {
-        this.utility = utility;
-    }
+  }
+  getType() {
+    return this.type;
+  }
+  setUtility(utility) {
+    this.utility = utility;
+  }
+  getUtility() {
+    return this.utility;
+  }
 
-    getIaHorseIndex(){
-        return this.iaHorseIndex
-    }
-    /* This function checks if the box is within the limits to move*/
-     checkTableLimits(boxIndex) {
+  setIaHorseIndexSelected(iaHorseIndexSelected) {
+    this.iaHorseIndexSelected = iaHorseIndexSelected;
+  }
+  getIaHorseIndex() {
+    return this.iaHorseIndex
+  }
+
+  hasNoUtility() {
+    return this.utility == Infinity || this.utility == -Infinity;
+  }
+
+  /* This function checks if the box is within the limits to move*/
+  checkTableLimits(boxIndex) {
     let canMove = false;
     if (
       boxIndex.x >= 0 &&
@@ -49,22 +71,27 @@ export default class Node {
     return canMove;
   }
 
-    /*This function checks if the box is dominated*/
-    checkIfBoxIsDominated(boxIndex) {
+  getDecision() {
+    return this.iaHorseIndexSeleted;
+  }
+
+  /*This function checks if the box is dominated*/
+  checkIfBoxIsDominated(boxIndex) {
     let boxDominated;
     if (
       this.gameboard[boxIndex.y][boxIndex.x] == IA_HORSE ||
       this.gameboard[boxIndex.y][boxIndex.x] == DOMINATED_BY_IA ||
-      this.gameboard[boxIndex.y][boxIndex.x] == DOMINATED_BY_PLAYER
+      this.gameboard[boxIndex.y][boxIndex.x] == DOMINATED_BY_PLAYER ||
+      this.gameboard[boxIndex.y][boxIndex.x] == PLAYER_HORSE
     ) {
       boxDominated = true;
     }
-  
+
     return boxDominated;
   }
 
   /* This function updates the horse valid moves, that is, the possible moves that player's horse can be take   */
-    updateValidMoves() {
+  updateValidMoves() {
     this.validMoves = [];
     let possibleMove = {};
     //up
@@ -111,9 +138,9 @@ export default class Node {
     if (this.checkTableLimits(possibleMove) && !this.checkIfBoxIsDominated(possibleMove)) {
       this.validMoves.push(possibleMove);
     }
-    }
+  }
 
-    getValidMoves(){
-        return this.validMoves
-    }
+  getValidMoves() {
+    return this.validMoves
+  }
 }
