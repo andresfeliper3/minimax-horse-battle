@@ -33,14 +33,35 @@ export default class MiniMax {
     this.nodes = []
     const initialNode = new Node(this.initialGameboard, this.iaHorseIndex, null)
     this.nodes.push(initialNode)
-    initialNode.updateValidMoves()
-    let validMoves = initialNode.getValidMoves()
+       
+    for(let i=1; i<this.maxDepth; i++){
+      this.expandByDepth(i,this.nodes)
+    }
+  }
+
+  expandByDepth(depth,nodesList){
+    for(let node of list){
+      if(node.getDepth()==depth){
+        node.expandNode
+      }
+    }
+  }
+
+  expandNode(node){
+    node.updateValidMoves()
+    let validMoves = node.getValidMoves()
 
     validMoves.forEach(move=>{
-      this.nodes.push (new Node(this.initialGameboard,move,initialNode))
-    })
+      this.nodes.push (new Node(this.initialGameboard,move,node))
+    })    
+  }
 
-    
+  searchByDepth(depth,list){
+    for(let node of list){
+      if(node.getDepth()==depth){
+        return node
+      }
+    }
   }
   getDecision() {
     return { x: 2, y: 2 };
