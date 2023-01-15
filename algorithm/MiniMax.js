@@ -31,12 +31,20 @@ export default class MiniMax {
 
   executeMinimax(){
     this.nodes = []
-    const initialNode = new Node(this.initialGameboard, this.iaHorseIndex)
+    const initialNode = new Node(this.initialGameboard, this.iaHorseIndex, null)
     this.nodes.push(initialNode)
-    initialNode.expand()
+    initialNode.updateValidMoves()
+    let validMoves = initialNode.getValidMoves()
 
+    validMoves.forEach(move=>{
+      this.nodes.push (new Node(this.initialGameboard,move,initialNode))
+    })
+
+    
   }
   getDecision() {
     return { x: 2, y: 2 };
   }
+
+  
 }

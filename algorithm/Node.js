@@ -10,9 +10,10 @@ const PLAYER_TURN = false;
 
 export default class Node {
 
-    constructor(gameboard,iaHorseIndex) {
+    constructor(gameboard,iaHorseIndex, father) {
         this.gameboard = gameboard;
         this.iaHorseIndex = iaHorseIndex
+        this.father = father
     }
 
     setDepth(depth) {
@@ -31,12 +32,9 @@ export default class Node {
         this.utility = utility;
     }
 
-    
-    expand(){
-        this.updateValidMoves()
-        console.log("validMoves", this.validMoves)
+    getIaHorseIndex(){
+        return this.iaHorseIndex
     }
-
     /* This function checks if the box is within the limits to move*/
      checkTableLimits(boxIndex) {
     let canMove = false;
@@ -113,5 +111,9 @@ export default class Node {
     if (this.checkTableLimits(possibleMove) && !this.checkIfBoxIsDominated(possibleMove)) {
       this.validMoves.push(possibleMove);
     }
+    }
+
+    getValidMoves(){
+        return this.validMoves
     }
 }
