@@ -258,6 +258,7 @@ function getIndexFromPosition(position) {
 
 function changeHorseIndex(newIndex) {
   playerHorseIndex = newIndex;
+  controller.setPlayerHorseIndex(playerHorseIndex)
 }
 
 /* This function updates the horse valid moves, that is, the possible moves that player's horse can be take   */

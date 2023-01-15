@@ -150,10 +150,22 @@ export default class Controller {
     return condition;
   }
 
+  setPlayerHorseIndex(index){
+    this.playerHorseIndex = index
+  }
+  setBonusIndex(index){
+    this.bonusIndex = index
+  }
   //ToDo: delete minimax instance
-  executeMinimax() {
+  executeMinimax() {  
     const miniMax = new MiniMax(this.gameboard);
+
     miniMax.setMaxDepth(LEVEL);
+    miniMax.setPlayerHorseIndex(this.playerHorseIndex)
+    miniMax.setIaHorseIndex(this.iaHorseIndex)
+    miniMax.setBonusIndex(this.bonusIndex)
+    miniMax.executeMinimax()
+
     this.gameboard[this.iaHorseIndex.y][this.iaHorseIndex.x] = DOMINATED_BY_IA;
     //this.iaHorseIndex = miniMax.getDecision();
     this.iaHorseIndex = this.generateRandomIndex();
