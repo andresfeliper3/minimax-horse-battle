@@ -54,9 +54,27 @@ export default class MiniMax {
         console.log("after inner while:", "depth", this.depth, "nodes length", this.nodes.length)
       }
       let { currentNode, currentNodeIndex } = objCurrentNode;
-      if (currentNode.getDepth() < this.maxDepth && currentNode.hasNoUtility()) {
+      if (currentNode.getDepth() < this.maxDepth && !currentNode.hasExpanded()) {
         console.log("currentNode depth", currentNode.getDepth())
-        this.expandNode(currentNode);
+        const isExpanded = this.expandNode(currentNode);
+        if (!isExpanded) {
+
+          const utility = -1 * currentNode.getUtility();
+          const father = currentNode.getFather();
+          if (father) {
+            const utilityChanged = father.setUtility(utility);
+            if (utilityChanged) {
+              father.setIaHorseIndexSelected(currentNode.getHorseIndex());
+            }
+          }
+          else {
+            alert("Ganaste")
+            return currentNode.getDecision();
+          }
+
+          //delete
+          this.nodes.splice(currentNodeIndex, 1);
+        }
       }
       //This conditional should only work when the decision must be taken
       else if (currentNode.getDepth() == 0) {
@@ -97,14 +115,22 @@ export default class MiniMax {
     console.log("gameboard", node.getGameboard())
     node.updateValidMoves(horseIndex)
     let validMoves = node.getValidMoves()
+
     console.log("valid moves", node.getValidMoves())
     console.log("horseIndex", horseIndex)
-    validMoves.forEach(move => {
-      const newNode = new Node([...node.getGameboard()], move, node, !node.getType(), horseIndex);
-      newNode.setDepth(node.getDepth() + 1);
-      console.log("new node depth is: ", newNode.getDepth())
-      this.nodes.push(newNode);
-    })
+    if (validMoves.length > 0) {
+      node.setExpanded();
+      validMoves.forEach(move => {
+        const newNode = new Node([...node.getGameboard()], move, node, !node.getType(), horseIndex);
+        newNode.setDepth(node.getDepth() + 1);
+        console.log("new node depth is: ", newNode.getDepth())
+        this.nodes.push(newNode);
+      })
+      return true;
+    }
+    else {
+      return false;
+    }
 
   }
 

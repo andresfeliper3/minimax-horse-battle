@@ -55,13 +55,13 @@ export default class Node {
   }
   setUtility(utility) {
     if (this.type == MAX) {
-      if (utility > this.utility) {
+      if (utility >= this.utility) {
         this.utility = utility;
         return true;
       }
     }
     else {
-      if (utility < this.utility) {
+      if (utility <= this.utility) {
         this.utility = utility;
         return true;
       }
@@ -79,8 +79,11 @@ export default class Node {
     return this.horseIndex
   }
 
-  hasNoUtility() {
-    return (this.utility == Infinity || this.utility == -Infinity);
+  hasExpanded() {
+    return this.expanded;
+  }
+  setExpanded() {
+    this.expanded = true;
   }
 
   generateUtility() {
