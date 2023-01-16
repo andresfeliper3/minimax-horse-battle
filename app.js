@@ -26,6 +26,9 @@ let bonusImage;
 let boxWidth;
 let boxHeight;
 
+let iaBoxesAcum;
+let playerBoxesAcum;
+
 let playerHorseIndex = controller.getPlayerHorseIndex();
 let iaHorseIndex = controller.getIaHorseIndex();
 
@@ -56,6 +59,8 @@ function draw() {
 
 function drawGrid() {
   let accum = 0;
+  iaBoxesAcum=1;
+  playerBoxesAcum=1;
   for (let x = 0; x < width; x += boxWidth) {
     for (let y = 0; y < height; y += boxHeight) {
       stroke(1.5);
@@ -82,6 +87,7 @@ function drawGrid() {
         ] == DOMINATED_BY_PLAYER
       ) {
         paintBox(getIndexFromPosition(position), "green");
+        playerBoxesAcum++;
       }
       if (
         controller.getGameBoard()[getIndexFromPosition(position).y][
@@ -97,6 +103,7 @@ function drawGrid() {
         ] == DOMINATED_BY_IA
       ) {
         paintBox(getIndexFromPosition(position), "red");
+        iaBoxesAcum++;
       }
 
       //Draw the possible horse moves
@@ -169,6 +176,7 @@ function dominateBox() {
       let timer = setInterval(() => {
         controller.executeMinimax();
         if (controller.getIaBlocked()) {
+          console.log("Game over, Ia Boxes: ", iaBoxesAcum, " Player Boxes: ", playerBoxesAcum, " ", calculateWinner(), " Wins!")
           clearInterval(timer);
         }
       }, 1000)
@@ -180,7 +188,6 @@ function dominateBox() {
     }
 
   }
-
 
 }
 
@@ -207,6 +214,7 @@ function checkIfBoxIsDominated(boxIndex) {
 
   return boxDominated;
 }
+
 
 /*This function checks if the box has a bonus*/
 function checkIfBoxHasBonus(boxIndex) {
@@ -278,6 +286,23 @@ function getIndexFromPosition(position) {
 function changeHorseIndex(newIndex) {
   playerHorseIndex = newIndex;
   controller.setPlayerHorseIndex(playerHorseIndex)
+}
+
+function calculateWinner(){
+  let winner="";
+  if(iaBoxesAcum > playerBoxesAcum){
+    winner="MACHINE"
+  }
+  else if(iaBoxesAcum < playerBoxesAcum){
+    winner="PLAYER"
+  }
+  else if(iaBoxesAcum = playerBoxesAcum){
+    winner= "It's a TIE"
+  }
+  else{
+    winner="Not defined yet"
+  }
+  return winner;
 }
 
 /* This function updates the horse valid moves, that is, the possible moves that player's horse can be take   */
