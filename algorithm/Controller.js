@@ -150,30 +150,31 @@ export default class Controller {
     return condition;
   }
 
-  setPlayerHorseIndex(index){
+  setPlayerHorseIndex(index) {
     this.playerHorseIndex = index
   }
-  setBonusIndex(index){
+  setBonusIndex(index) {
     this.bonusIndex = index
   }
   //ToDo: delete minimax instance
-  executeMinimax() {  
-    const miniMax = new MiniMax(this.gameboard);
+  executeMinimax() {
+    const miniMax = new MiniMax([...this.gameboard]);
 
     miniMax.setMaxDepth(LEVEL);
     miniMax.setPlayerHorseIndex(this.playerHorseIndex)
     miniMax.setIaHorseIndex(this.iaHorseIndex)
-    miniMax.setBonusIndex(this.bonusIndex)
-    miniMax.executeMinimax()
+    miniMax.setBonusIndex([...this.bonusIndex])
 
     this.gameboard[this.iaHorseIndex.y][this.iaHorseIndex.x] = DOMINATED_BY_IA;
-    //this.iaHorseIndex = miniMax.getDecision();
-    this.iaHorseIndex = this.generateRandomIndex();
+    this.iaHorseIndex = miniMax.executeMinimax()
+    console.log("iahorseindex in controller", this.iaHorseIndex)
+    // this.iaHorseIndex = this.generateRandomIndex();
     if (this.gameboard[this.iaHorseIndex.y][this.iaHorseIndex.x] == BONUS) {
       this.dominateAdjacents(this.iaHorseIndex);
     }
     this.gameboard[this.iaHorseIndex.y][this.iaHorseIndex.x] = IA_HORSE;
     this.changeTurn();
+    console.log("Controller: FINISH EXECUTE MINIMAX", this.gameboard)
   }
 
   changeTurn() {

@@ -34,28 +34,38 @@ export default class MiniMax {
 
   executeMinimax() {
     this.nodes = []
-    const initialNode = new Node(this.initialGameboard, this.iaHorseIndex, null, MAX, this.iaHorseIndex)
+    console.log("BEFORE initial Gameboard", this.initialGameboard)
+    const initialNode = new Node(this.initialGameboard.slice(0), this.iaHorseIndex, null, MAX, this.iaHorseIndex)
+    console.log("AFTER initial Gameboard", initialNode.getGameboard())
+
     initialNode.setDepth(0);
-    initialNode.setType(MAX);
     this.nodes.push(initialNode)
 
     this.depth = 0;
 
     while (true) {
-      let { currentNode, currentNodeIndex } = this.searchByDepth(this.depth);
-      while (!currentNode) {
-        this.depth--;
-        currentNode = this.searchByDepth(this.depth);
-      }
+      console.log("OUTER WHILE, and nodes length", this.nodes.length)
+      let objCurrentNode = this.searchByDepth(this.depth);
+      while (objCurrentNode == null) {
+        console.log("before inner while:", "depth", this.depth, "nodes length", this.nodes.length)
 
+        this.depth--;
+        objCurrentNode = this.searchByDepth(this.depth);
+        console.log("after inner while:", "depth", this.depth, "nodes length", this.nodes.length)
+      }
+      let { currentNode, currentNodeIndex } = objCurrentNode;
       if (currentNode.getDepth() < this.maxDepth && currentNode.hasNoUtility()) {
+        console.log("currentNode depth", currentNode.getDepth())
         this.expandNode(currentNode);
       }
       //This conditional should only work when the decision must be taken
-      else if (currentNode.getDepth == 0) {
+      else if (currentNode.getDepth() == 0) {
         return currentNode.getDecision();
       }
       else {
+        if (currentNode.getDepth() == this.maxDepth) {
+          currentNode.generateUtility();
+        }
         const utility = currentNode.getUtility(); //todo: heuristics
         const father = currentNode.getFather();
         const utilityChanged = father.setUtility(utility);
@@ -63,16 +73,17 @@ export default class MiniMax {
           father.setIaHorseIndexSelected(currentNode.getHorseIndex());
         }
         //delete
-        this.nodes = this.nodes.filter((node, index) => {
-          index != currentNodeIndex
-        });
+        this.nodes.splice(currentNodeIndex, 1);
+
       }
 
+      console.log("search by depth", this.searchByDepth(this.maxDepth), "with maxdepth:", this.maxDepth, "and depth:", this.depth)
       if (this.depth < this.maxDepth) {
         this.depth++;
       }
       else if (this.depth == this.maxDepth && this.searchByDepth(this.maxDepth) == null) {
         this.depth--;
+        console.log("DEPTH DIMINISHES", this.depth)
       }
     }
 
@@ -80,29 +91,35 @@ export default class MiniMax {
 
 
   expandNode(node) {
-    const horseIndex = node.getType() == MAX ? this.iaHorseIndex : this.playerHorseIndex;
+    const horseIndex = node.getHorseIndex();
+    console.log("IMPRIMÍ ESTOS CABALLOS", this.iaHorseIndex, this.playerHorseIndex)
+    console.log("node details: depth", node.getDepth(), "horseindex", node.getHorseIndex())
+    console.log("gameboard", node.getGameboard())
     node.updateValidMoves(horseIndex)
     let validMoves = node.getValidMoves()
-
+    console.log("valid moves", node.getValidMoves())
+    console.log("horseIndex", horseIndex)
     validMoves.forEach(move => {
-
-      const newNode = new Node(node.getGameboard(), move, node, !node.getType(), horseIndex);
+      const newNode = new Node([...node.getGameboard()], move, node, !node.getType(), horseIndex);
       newNode.setDepth(node.getDepth() + 1);
+      console.log("new node depth is: ", newNode.getDepth())
       this.nodes.push(newNode);
     })
+
   }
 
   searchByDepth(depth) {
     for (let i = 0; i < this.nodes.length; i++) {
       if (this.nodes[i].getDepth() == depth) {
+        // console.log("I FOUND it", this.nodes[i].getHorseIndex())
         return { currentNode: this.nodes[i], currentNodeIndex: i }
       }
     }
     return null;
   }
 
-  getDecision() {
-    return { x: 2, y: 2 };
+  printNodes() {
+    this.nodes.forEach(node => console.log("nodes depth", node.getDepth()))
   }
 
 
