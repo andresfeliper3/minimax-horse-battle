@@ -51,6 +51,7 @@ function draw() {
   const playerBackgroundColor = "green";
   paintPlayer(playerHorseIndex, whiteHorseImage, playerBackgroundColor);
   updateValidMoves();
+
 }
 
 function drawGrid() {
@@ -69,7 +70,7 @@ function drawGrid() {
       const position = { x, y };
       if (
         controller.getGameBoard()[getIndexFromPosition(position).y][
-          getIndexFromPosition(position).x
+        getIndexFromPosition(position).x
         ] == BONUS
       ) {
         paintBonus(position);
@@ -77,14 +78,14 @@ function drawGrid() {
 
       if (
         controller.getGameBoard()[getIndexFromPosition(position).y][
-          getIndexFromPosition(position).x
+        getIndexFromPosition(position).x
         ] == DOMINATED_BY_PLAYER
       ) {
         paintBox(getIndexFromPosition(position), "green");
       }
       if (
         controller.getGameBoard()[getIndexFromPosition(position).y][
-          getIndexFromPosition(position).x
+        getIndexFromPosition(position).x
         ] == IA_HORSE
       ) {
         iaHorseIndex = getIndexFromPosition(position);
@@ -92,7 +93,7 @@ function drawGrid() {
       }
       if (
         controller.getGameBoard()[getIndexFromPosition(position).y][
-          getIndexFromPosition(position).x
+        getIndexFromPosition(position).x
         ] == DOMINATED_BY_IA
       ) {
         paintBox(getIndexFromPosition(position), "red");
@@ -161,8 +162,26 @@ function dominateBox() {
     console.log("after play: ", controller.getGameBoard());
     gameBoard[playerHorseIndex.y][playerHorseIndex.x] = PLAYER_HORSE;
     controller.changeTurn();
-    controller.executeMinimax();
+
+    updateValidMoves();
+    if (validMoves.length == 0) {
+      controller.setPlayerBlocked();
+      let timer = setInterval(() => {
+        controller.executeMinimax();
+        if (controller.getIaBlocked()) {
+          clearInterval(timer);
+        }
+      }, 1000)
+
+    } else {
+      setTimeout(() => {
+        controller.executeMinimax();
+      }, 0)
+    }
+
   }
+
+
 }
 
 /*This function checks if the horse move where the player has clicked is valid to move */

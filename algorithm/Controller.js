@@ -13,7 +13,7 @@ const IA_TURN = true;
 const PLAYER_TURN = false;
 
 /*DIFICULT */
-const LEVEL = 2;
+const LEVEL = prompt("Escoge el nivel (2, 4, 6)")
 
 export default class Controller {
   constructor() {
@@ -164,19 +164,31 @@ export default class Controller {
     miniMax.setPlayerHorseIndex(this.playerHorseIndex)
     miniMax.setIaHorseIndex(this.iaHorseIndex)
     miniMax.setBonusIndex([...this.bonusIndex])
-
+    const previousIaHorseIndex = this.iaHorseIndex;
     this.gameboard[this.iaHorseIndex.y][this.iaHorseIndex.x] = DOMINATED_BY_IA;
-    this.iaHorseIndex = miniMax.executeMinimax()
+    this.iaHorseIndex = miniMax.executeMinimax() //when blocked, this remains running and returning index
+    if (this.iaHorseIndex.x == previousIaHorseIndex.x && this.iaHorseIndex.y == previousIaHorseIndex.y) {
+      this.iaBlocked = true;
+    }
     console.log("iahorseindex in controller", this.iaHorseIndex)
     // this.iaHorseIndex = this.generateRandomIndex();
     if (this.gameboard[this.iaHorseIndex.y][this.iaHorseIndex.x] == BONUS) {
       this.dominateAdjacents(this.iaHorseIndex);
     }
     this.gameboard[this.iaHorseIndex.y][this.iaHorseIndex.x] = IA_HORSE;
-    this.changeTurn();
+    if (!this.playerBlocked) {
+      this.changeTurn();
+    }
     console.log("Controller: FINISH EXECUTE MINIMAX", this.gameboard)
+    return this.iaHorseIndex;
   }
 
+  setPlayerBlocked() {
+    this.playerBlocked = true;
+  }
+  getIaBlocked() {
+    return this.iaBlocked;
+  }
   changeTurn() {
     this.turn = !this.turn;
   }

@@ -68,8 +68,7 @@ export default class MiniMax {
             }
           }
           else {
-            alert("Ganaste")
-            return currentNode.getDecision();
+            return currentNode.getHorseIndex();
           }
 
           //delete
