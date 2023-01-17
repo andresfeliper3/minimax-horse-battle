@@ -35,7 +35,7 @@ export default class MiniMax {
   executeMinimax() {
     this.nodes = []
     console.log("BEFORE initial Gameboard", this.initialGameboard)
-    const initialNode = new Node(this.initialGameboard.slice(0), this.iaHorseIndex, null, MAX, this.iaHorseIndex)
+    const initialNode = new Node(this.copy(this.initialGameboard), this.iaHorseIndex, null, MAX, this.iaHorseIndex)
     console.log("AFTER initial Gameboard", initialNode.getGameboard())
 
     initialNode.setDepth(0);
@@ -82,6 +82,7 @@ export default class MiniMax {
       else {
         if (currentNode.getDepth() == this.maxDepth) {
           currentNode.generateUtility();
+          console.log("GENERATED UTILITY in controller", currentNode.getUtility());
         }
         const utility = currentNode.getUtility(); //todo: heuristics
         const father = currentNode.getFather();
@@ -106,7 +107,9 @@ export default class MiniMax {
 
   }
 
-
+  copy(matrix) {
+    return matrix.map(row => [...row]);
+  }
   expandNode(node) {
     const horseIndex = node.getHorseIndex();
     console.log("IMPRIMÍ ESTOS CABALLOS", this.iaHorseIndex, this.playerHorseIndex)
@@ -120,7 +123,7 @@ export default class MiniMax {
     if (validMoves.length > 0) {
       node.setExpanded();
       validMoves.forEach(move => {
-        const newNode = new Node([...node.getGameboard()], move, node, !node.getType(), horseIndex);
+        const newNode = new Node(this.copy(node.getGameboard()), move, node, !node.getType(), horseIndex);
         newNode.setDepth(node.getDepth() + 1);
         console.log("new node depth is: ", newNode.getDepth())
         this.nodes.push(newNode);

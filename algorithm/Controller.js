@@ -158,7 +158,7 @@ export default class Controller {
   }
   //ToDo: delete minimax instance
   executeMinimax() {
-    const miniMax = new MiniMax([...this.gameboard]);
+    const miniMax = new MiniMax(this.gameboard);
 
     miniMax.setMaxDepth(LEVEL);
     miniMax.setPlayerHorseIndex(this.playerHorseIndex)
@@ -181,6 +181,10 @@ export default class Controller {
     }
     console.log("Controller: FINISH EXECUTE MINIMAX", this.gameboard)
     return this.iaHorseIndex;
+  }
+
+  copy(matrix) {
+    return matrix.map(row => [...row]);
   }
 
   setPlayerBlocked() {
@@ -216,7 +220,7 @@ export default class Controller {
   }
 
   getGameBoard() {
-    return this.gameboard;
+    return [...this.gameboard];
   }
 
   /* This function checks if the box is within the limits to move*/

@@ -22,9 +22,9 @@ export default class Node {
     }
     this.previousHorseIndex = previousHorseIndex;
     this.horseIndex = horseIndex;
-    this.gameboard = [...gameboard];
-    // this.gameboard[horseIndex.y][horseIndex.x] = type == MAX ? IA_HORSE : PLAYER_HORSE;
-    // this.gameboard[previousHorseIndex.y][previousHorseIndex.x] = type == MAX ? DOMINATED_BY_IA : DOMINATED_BY_PLAYER;
+    this.gameboard = gameboard;
+    this.gameboard[horseIndex.y][horseIndex.x] = type == MAX ? IA_HORSE : PLAYER_HORSE;
+    this.gameboard[previousHorseIndex.y][previousHorseIndex.x] = type == MAX ? DOMINATED_BY_IA : DOMINATED_BY_PLAYER;
 
     this.father = father
   }
@@ -90,9 +90,29 @@ export default class Node {
     this.updateValidMoves(this.horseIndex)
     let myPossibleMovesAmount = this.validMoves.length;
     let fatherPossibleMovesAmount = this.father.getValidMoves().length; //todo
-    this.utility = 1;
+
+    let dominatedByMax = this.countDominatedBoxes()[0];
+    let dominatedByMin = this.countDominatedBoxes()[1];
+    this.utility = dominatedByMax - dominatedByMin;
+    console.log("GENERATED UTILITY in Node", this.utility)
+    console.log("GAMEBOARD IN TERMINAL NODE", this.gameboard);
   }
 
+  countDominatedBoxes() {
+    let dominatedByMax = 0;
+    let dominatedByMin = 0;
+    for (let y = 0; y < this.gameboard.length; y++) {
+      for (let x = 0; x < this.gameboard.length[0]; x++) {
+        if (this.gameboard[y][x] == DOMINATED_BY_IA || IA_HORSE) {
+          dominatedByMax++;
+        }
+        else if (this.gameboard[y][x] == DOMINATED_BY_PLAYER || PLAYER_HORSE) {
+          dominatedByMin++;
+        }
+      }
+    }
+    return [dominatedByMax, dominatedByMin]
+  }
   /* This function checks if the box is within the limits to move*/
   checkTableLimits(boxIndex) {
     let canMove = false;

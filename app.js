@@ -59,8 +59,8 @@ function draw() {
 
 function drawGrid() {
   let accum = 0;
-  iaBoxesAcum=1;
-  playerBoxesAcum=1;
+  iaBoxesAcum = 1;
+  playerBoxesAcum = 1;
   for (let x = 0; x < width; x += boxWidth) {
     for (let y = 0; y < height; y += boxHeight) {
       stroke(1.5);
@@ -288,19 +288,19 @@ function changeHorseIndex(newIndex) {
   controller.setPlayerHorseIndex(playerHorseIndex)
 }
 
-function calculateWinner(){
-  let winner="";
-  if(iaBoxesAcum > playerBoxesAcum){
-    winner="MACHINE"
+function calculateWinner() {
+  let winner = "";
+  if (iaBoxesAcum > playerBoxesAcum) {
+    winner = "MACHINE"
   }
-  else if(iaBoxesAcum < playerBoxesAcum){
-    winner="PLAYER"
+  else if (iaBoxesAcum < playerBoxesAcum) {
+    winner = "PLAYER"
   }
-  else if(iaBoxesAcum = playerBoxesAcum){
-    winner= "It's a TIE"
+  else if (iaBoxesAcum = playerBoxesAcum) {
+    winner = "It's a TIE"
   }
-  else{
-    winner="Not defined yet"
+  else {
+    winner = "Not defined yet"
   }
   return winner;
 }
