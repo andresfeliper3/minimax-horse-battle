@@ -34,7 +34,6 @@ export default class MiniMax {
 
   executeMinimax() {
     this.nodes = [];
-    console.log("BEFORE initial Gameboard", this.initialGameboard);
     const initialNode = new Node(
       this.copy(this.initialGameboard),
       this.iaHorseIndex,
@@ -43,7 +42,6 @@ export default class MiniMax {
       MAX,
       this.iaHorseIndex
     );
-    console.log("AFTER initial Gameboard", initialNode.getGameboard());
 
     initialNode.setDepth(0);
     this.nodes.push(initialNode);
@@ -51,33 +49,16 @@ export default class MiniMax {
     this.depth = 0;
 
     while (true) {
-      console.log("OUTER WHILE, and nodes length", this.nodes.length);
       let objCurrentNode = this.searchByDepth(this.depth);
       while (objCurrentNode == null) {
-        console.log(
-          "before inner while:",
-          "depth",
-          this.depth,
-          "nodes length",
-          this.nodes.length
-        );
-
         this.depth--;
         objCurrentNode = this.searchByDepth(this.depth);
-        console.log(
-          "after inner while:",
-          "depth",
-          this.depth,
-          "nodes length",
-          this.nodes.length
-        );
       }
       let { currentNode, currentNodeIndex } = objCurrentNode;
       if (
         currentNode.getDepth() < this.maxDepth &&
         !currentNode.hasExpanded()
       ) {
-        console.log("currentNode depth", currentNode.getDepth());
         const isExpanded = this.expandNode(currentNode);
         if (!isExpanded) {
           const utility = -1 * currentNode.getUtility();
@@ -111,15 +92,6 @@ export default class MiniMax {
         //delete
         this.nodes.splice(currentNodeIndex, 1);
       }
-
-      console.log(
-        "search by depth",
-        this.searchByDepth(this.maxDepth),
-        "with maxdepth:",
-        this.maxDepth,
-        "and depth:",
-        this.depth
-      );
       if (this.depth < this.maxDepth) {
         this.depth++;
       } else if (
@@ -127,7 +99,6 @@ export default class MiniMax {
         this.searchByDepth(this.maxDepth) == null
       ) {
         this.depth--;
-        console.log("DEPTH DIMINISHES", this.depth);
       }
     }
   }
@@ -141,20 +112,8 @@ export default class MiniMax {
       node.getType() == MAX
         ? node.getIaHorseIndex()
         : node.getPlayerHorseIndex();
-    console.log(
-      "IMPRIMÍ ESTOS CABALLOS",
-      this.iaHorseIndex,
-      this.playerHorseIndex
-    );
-    console.log(
-      "node details: depth",
-      node.getDepth(),
-      "iaHorseindex",
-      node.getIaHorseIndex()
-    );
-    console.log("gameboard", node.getGameboard());
+
     let validMoves = node.updateValidMoves(horseIndex);
-    console.log("horseIndex", horseIndex);
     if (validMoves.length > 0) {
       node.setExpanded();
       validMoves.forEach((move) => {
@@ -180,7 +139,6 @@ export default class MiniMax {
         }
 
         newNode.setDepth(node.getDepth() + 1);
-        console.log("new node depth is: ", newNode.getDepth());
         this.nodes.push(newNode);
       });
       return true;
@@ -192,14 +150,9 @@ export default class MiniMax {
   searchByDepth(depth) {
     for (let i = 0; i < this.nodes.length; i++) {
       if (this.nodes[i].getDepth() == depth) {
-        // console.log("I FOUND it", this.nodes[i].getHorseIndex())
         return { currentNode: this.nodes[i], currentNodeIndex: i };
       }
     }
     return null;
-  }
-
-  printNodes() {
-    this.nodes.forEach((node) => console.log("nodes depth", node.getDepth()));
   }
 }

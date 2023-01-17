@@ -127,8 +127,25 @@ export default class Node {
     let playerValidMoves = this.updateValidMoves(this.playerHorseIndex).length;
     let iaValidMoves = this.updateValidMoves(this.iaHorseIndex).length;
 
-    this.utility =
-      dominatedByMax - dominatedByMin + (iaValidMoves - playerValidMoves);
+    this.utility = dominatedByMax - dominatedByMin;
+
+    console.log(
+      "PLAYER: ",
+      this.playerHorseIndex,
+      "IA: ",
+      this.iaHorseIndex,
+      "UTILITY: ",
+      this.utility,
+      "PLAYER MOVES: ",
+      this.updateValidMoves(this.playerHorseIndex),
+      "IA MOVES: ",
+      this.updateValidMoves(this.iaHorseIndex),
+      "DOM BY PLAYER: ",
+      dominatedByMin,
+      "DOM BY IA: ",
+      dominatedByMax
+    );
+    /*
     console.log(
       "GENERATED UTILITY in Node",
       this.utility,
@@ -136,10 +153,13 @@ export default class Node {
       dominatedByMax,
       "byMin",
       dominatedByMin,
-      "type",
-      this.type
+      "iaValidMoves",
+      iaValidMoves,
+      "playerValidMoves",
+      playerValidMoves
     );
     console.log("GAMEBOARD IN TERMINAL NODE", this.gameboard);
+    */
   }
 
   countDominatedBoxes() {
@@ -177,7 +197,12 @@ export default class Node {
   }
 
   getDecision() {
-    console.log("NODE: getDecision", this.iaHorseIndexSelected);
+    console.log(
+      "NODE: getDecision",
+      this.iaHorseIndexSelected,
+      "Utility:",
+      this.getUtility()
+    );
     return this.iaHorseIndexSelected;
   }
 
@@ -283,10 +308,8 @@ export default class Node {
   /*This function dominates the boxes adjacents to the bonus*/
   dominateAdjacents(horseIndex, dominate) {
     let possibleBox = {};
-    console.log("Dominating adjacents: ", horseIndex, dominate);
     //left
     possibleBox = { x: horseIndex.x - 1, y: horseIndex.y };
-    console.log(possibleBox);
     if (
       this.checkTableLimits(possibleBox) &&
       !this.checkIfBoxIsDominated(possibleBox)
@@ -295,7 +318,6 @@ export default class Node {
     }
     //right
     possibleBox = { x: horseIndex.x + 1, y: horseIndex.y };
-    console.log(possibleBox);
     if (
       this.checkTableLimits(possibleBox) &&
       !this.checkIfBoxIsDominated(possibleBox)
@@ -304,7 +326,6 @@ export default class Node {
     }
     //up
     possibleBox = { x: horseIndex.x, y: horseIndex.y - 1 };
-    console.log(possibleBox);
     if (
       this.checkTableLimits(possibleBox) &&
       !this.checkIfBoxIsDominated(possibleBox)
@@ -313,7 +334,6 @@ export default class Node {
     }
     //down
     possibleBox = { x: horseIndex.x, y: horseIndex.y + 1 };
-    console.log(possibleBox);
     if (
       this.checkTableLimits(possibleBox) &&
       !this.checkIfBoxIsDominated(possibleBox)

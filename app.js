@@ -25,6 +25,7 @@ let whiteHorseImage;
 let bonusImage;
 let boxWidth;
 let boxHeight;
+let gameOver = false;
 
 let iaBoxesAcum;
 let playerBoxesAcum;
@@ -54,7 +55,6 @@ function draw() {
   const playerBackgroundColor = "green";
   paintPlayer(playerHorseIndex, whiteHorseImage, playerBackgroundColor);
   updateValidMoves();
-
 }
 
 function drawGrid() {
@@ -75,7 +75,7 @@ function drawGrid() {
       const position = { x, y };
       if (
         controller.getGameBoard()[getIndexFromPosition(position).y][
-        getIndexFromPosition(position).x
+          getIndexFromPosition(position).x
         ] == BONUS
       ) {
         paintBonus(position);
@@ -83,7 +83,7 @@ function drawGrid() {
 
       if (
         controller.getGameBoard()[getIndexFromPosition(position).y][
-        getIndexFromPosition(position).x
+          getIndexFromPosition(position).x
         ] == DOMINATED_BY_PLAYER
       ) {
         paintBox(getIndexFromPosition(position), "green");
@@ -91,7 +91,7 @@ function drawGrid() {
       }
       if (
         controller.getGameBoard()[getIndexFromPosition(position).y][
-        getIndexFromPosition(position).x
+          getIndexFromPosition(position).x
         ] == IA_HORSE
       ) {
         iaHorseIndex = getIndexFromPosition(position);
@@ -99,11 +99,15 @@ function drawGrid() {
       }
       if (
         controller.getGameBoard()[getIndexFromPosition(position).y][
-        getIndexFromPosition(position).x
+          getIndexFromPosition(position).x
         ] == DOMINATED_BY_IA
       ) {
         paintBox(getIndexFromPosition(position), "red");
         iaBoxesAcum++;
+      }
+      if (gameOver) {
+        alert(`${calculateWinner().toString()} WINS`);
+        gameOver = false;
       }
 
       //Draw the possible horse moves
@@ -166,7 +170,6 @@ function dominateBox() {
       dominateAdjacents(playerHorseIndex); //Horse dominates the adjacents boxes
     }
     //updateValidMoves(); //update the possible moves that the horse can to do
-    console.log("after play: ", controller.getGameBoard());
     gameBoard[playerHorseIndex.y][playerHorseIndex.x] = PLAYER_HORSE;
     controller.changeTurn();
 
@@ -176,19 +179,25 @@ function dominateBox() {
       let timer = setInterval(() => {
         controller.executeMinimax();
         if (controller.getIaBlocked()) {
-          console.log("Game over, Ia Boxes: ", iaBoxesAcum, " Player Boxes: ", playerBoxesAcum, " ", calculateWinner(), " Wins!")
+          console.log(
+            "Game over, Ia Boxes: ",
+            iaBoxesAcum,
+            " Player Boxes: ",
+            playerBoxesAcum,
+            " ",
+            calculateWinner(),
+            " Wins!"
+          );
           clearInterval(timer);
+          gameOver = true;
         }
-      }, 1000)
-
+      }, 1000);
     } else {
       setTimeout(() => {
         controller.executeMinimax();
-      }, 0)
+      }, 0);
     }
-
   }
-
 }
 
 /*This function checks if the horse move where the player has clicked is valid to move */
@@ -214,7 +223,6 @@ function checkIfBoxIsDominated(boxIndex) {
 
   return boxDominated;
 }
-
 
 /*This function checks if the box has a bonus*/
 function checkIfBoxHasBonus(boxIndex) {
@@ -285,22 +293,19 @@ function getIndexFromPosition(position) {
 
 function changeHorseIndex(newIndex) {
   playerHorseIndex = newIndex;
-  controller.setPlayerHorseIndex(playerHorseIndex)
+  controller.setPlayerHorseIndex(playerHorseIndex);
 }
 
 function calculateWinner() {
   let winner = "";
   if (iaBoxesAcum > playerBoxesAcum) {
-    winner = "MACHINE"
-  }
-  else if (iaBoxesAcum < playerBoxesAcum) {
-    winner = "PLAYER"
-  }
-  else if (iaBoxesAcum = playerBoxesAcum) {
-    winner = "It's a TIE"
-  }
-  else {
-    winner = "Not defined yet"
+    winner = "MACHINE";
+  } else if (iaBoxesAcum < playerBoxesAcum) {
+    winner = "PLAYER";
+  } else if ((iaBoxesAcum = playerBoxesAcum)) {
+    winner = "DRAW";
+  } else {
+    winner = "Not defined yet";
   }
   return winner;
 }
