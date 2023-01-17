@@ -23,42 +23,63 @@ export default class MiniMax {
   }
 
   setPlayerHorseIndex(index) {
-    this.playerHorseIndex = index
+    this.playerHorseIndex = index;
   }
   setIaHorseIndex(index) {
-    this.iaHorseIndex = index
+    this.iaHorseIndex = index;
   }
   setBonusIndex(index) {
-    this.bonusIndex = index
+    this.bonusIndex = index;
   }
 
   executeMinimax() {
-    this.nodes = []
-    console.log("BEFORE initial Gameboard", this.initialGameboard)
-    const initialNode = new Node(this.copy(this.initialGameboard), this.iaHorseIndex, this.playerHorseIndex, null, MAX, this.iaHorseIndex)
-    console.log("AFTER initial Gameboard", initialNode.getGameboard())
+    this.nodes = [];
+    console.log("BEFORE initial Gameboard", this.initialGameboard);
+    const initialNode = new Node(
+      this.copy(this.initialGameboard),
+      this.iaHorseIndex,
+      this.playerHorseIndex,
+      null,
+      MAX,
+      this.iaHorseIndex
+    );
+    console.log("AFTER initial Gameboard", initialNode.getGameboard());
 
     initialNode.setDepth(0);
-    this.nodes.push(initialNode)
+    this.nodes.push(initialNode);
 
     this.depth = 0;
 
     while (true) {
-      console.log("OUTER WHILE, and nodes length", this.nodes.length)
+      console.log("OUTER WHILE, and nodes length", this.nodes.length);
       let objCurrentNode = this.searchByDepth(this.depth);
       while (objCurrentNode == null) {
-        console.log("before inner while:", "depth", this.depth, "nodes length", this.nodes.length)
+        console.log(
+          "before inner while:",
+          "depth",
+          this.depth,
+          "nodes length",
+          this.nodes.length
+        );
 
         this.depth--;
         objCurrentNode = this.searchByDepth(this.depth);
-        console.log("after inner while:", "depth", this.depth, "nodes length", this.nodes.length)
+        console.log(
+          "after inner while:",
+          "depth",
+          this.depth,
+          "nodes length",
+          this.nodes.length
+        );
       }
       let { currentNode, currentNodeIndex } = objCurrentNode;
-      if (currentNode.getDepth() < this.maxDepth && !currentNode.hasExpanded()) {
-        console.log("currentNode depth", currentNode.getDepth())
+      if (
+        currentNode.getDepth() < this.maxDepth &&
+        !currentNode.hasExpanded()
+      ) {
+        console.log("currentNode depth", currentNode.getDepth());
         const isExpanded = this.expandNode(currentNode);
         if (!isExpanded) {
-
           const utility = -1 * currentNode.getUtility();
           const father = currentNode.getFather();
           if (father) {
@@ -66,8 +87,7 @@ export default class MiniMax {
             if (utilityChanged) {
               father.setIaHorseIndexSelected(currentNode.getIaHorseIndex());
             }
-          }
-          else {
+          } else {
             return currentNode.getIaHorseIndex();
           }
 
@@ -78,8 +98,7 @@ export default class MiniMax {
       //This conditional should only work when the decision must be taken
       else if (currentNode.getDepth() == 0) {
         return currentNode.getDecision();
-      }
-      else {
+      } else {
         if (currentNode.getDepth() == this.maxDepth) {
           currentNode.generateUtility();
         }
@@ -91,72 +110,96 @@ export default class MiniMax {
         }
         //delete
         this.nodes.splice(currentNodeIndex, 1);
-
       }
 
-      console.log("search by depth", this.searchByDepth(this.maxDepth), "with maxdepth:", this.maxDepth, "and depth:", this.depth)
+      console.log(
+        "search by depth",
+        this.searchByDepth(this.maxDepth),
+        "with maxdepth:",
+        this.maxDepth,
+        "and depth:",
+        this.depth
+      );
       if (this.depth < this.maxDepth) {
         this.depth++;
-      }
-      else if (this.depth == this.maxDepth && this.searchByDepth(this.maxDepth) == null) {
+      } else if (
+        this.depth == this.maxDepth &&
+        this.searchByDepth(this.maxDepth) == null
+      ) {
         this.depth--;
-        console.log("DEPTH DIMINISHES", this.depth)
+        console.log("DEPTH DIMINISHES", this.depth);
       }
     }
-
   }
 
   copy(matrix) {
-    return matrix.map(row => [...row]);
+    return matrix.map((row) => [...row]);
   }
   expandNode(node) {
     // const horseIndex = node.getHorseIndex();
-    const horseIndex = node.getType() == MAX ? node.getIaHorseIndex() : node.getPlayerHorseIndex();
-    console.log("IMPRIMÍ ESTOS CABALLOS", this.iaHorseIndex, this.playerHorseIndex)
-    console.log("node details: depth", node.getDepth(), "iaHorseindex", node.getIaHorseIndex())
-    console.log("gameboard", node.getGameboard())
-    node.updateValidMoves(horseIndex)
-    let validMoves = node.getValidMoves()
-
-    console.log("valid moves", node.getValidMoves())
-    console.log("horseIndex", horseIndex)
+    const horseIndex =
+      node.getType() == MAX
+        ? node.getIaHorseIndex()
+        : node.getPlayerHorseIndex();
+    console.log(
+      "IMPRIMÍ ESTOS CABALLOS",
+      this.iaHorseIndex,
+      this.playerHorseIndex
+    );
+    console.log(
+      "node details: depth",
+      node.getDepth(),
+      "iaHorseindex",
+      node.getIaHorseIndex()
+    );
+    console.log("gameboard", node.getGameboard());
+    let validMoves = node.updateValidMoves(horseIndex);
+    console.log("horseIndex", horseIndex);
     if (validMoves.length > 0) {
       node.setExpanded();
-      validMoves.forEach(move => {
+      validMoves.forEach((move) => {
         let newNode;
         if (node.getType() == MAX) {
-          newNode = new Node(this.copy(node.getGameboard()), move, node.getPlayerHorseIndex(), node, !node.getType(), horseIndex);
-        }
-        else {
-          newNode = new Node(this.copy(node.getGameboard()), node.getIaHorseIndex(), move, node, !node.getType(), horseIndex);
+          newNode = new Node(
+            this.copy(node.getGameboard()),
+            move,
+            node.getPlayerHorseIndex(),
+            node,
+            !node.getType(),
+            horseIndex
+          );
+        } else {
+          newNode = new Node(
+            this.copy(node.getGameboard()),
+            node.getIaHorseIndex(),
+            move,
+            node,
+            !node.getType(),
+            horseIndex
+          );
         }
 
         newNode.setDepth(node.getDepth() + 1);
-        console.log("new node depth is: ", newNode.getDepth())
+        console.log("new node depth is: ", newNode.getDepth());
         this.nodes.push(newNode);
-      })
+      });
       return true;
-    }
-    else {
+    } else {
       return false;
     }
-
   }
 
   searchByDepth(depth) {
     for (let i = 0; i < this.nodes.length; i++) {
       if (this.nodes[i].getDepth() == depth) {
         // console.log("I FOUND it", this.nodes[i].getHorseIndex())
-        return { currentNode: this.nodes[i], currentNodeIndex: i }
+        return { currentNode: this.nodes[i], currentNodeIndex: i };
       }
     }
     return null;
   }
 
   printNodes() {
-    this.nodes.forEach(node => console.log("nodes depth", node.getDepth()))
+    this.nodes.forEach((node) => console.log("nodes depth", node.getDepth()));
   }
-
-
-
 }

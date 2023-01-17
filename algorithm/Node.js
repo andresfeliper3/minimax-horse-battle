@@ -124,7 +124,11 @@ export default class Node {
     let dominated = this.countDominatedBoxes();
     let dominatedByMax = dominated[0];
     let dominatedByMin = dominated[1];
-    this.utility = dominatedByMax - dominatedByMin;
+    let playerValidMoves = this.updateValidMoves(this.playerHorseIndex).length;
+    let iaValidMoves = this.updateValidMoves(this.iaHorseIndex).length;
+
+    this.utility =
+      dominatedByMax - dominatedByMin + (iaValidMoves - playerValidMoves);
     console.log(
       "GENERATED UTILITY in Node",
       this.utility,
@@ -195,7 +199,7 @@ export default class Node {
 
   /* This function updates the horse valid moves, that is, the possible moves that player's horse can be take   */
   updateValidMoves(horseIndex) {
-    this.validMoves = [];
+    let validMoves = [];
     let possibleMove = {};
     //up
     //up-left
@@ -205,7 +209,7 @@ export default class Node {
       this.checkTableLimits(possibleMove) &&
       !this.checkIfBoxIsDominated(possibleMove)
     ) {
-      this.validMoves.push(possibleMove);
+      validMoves.push(possibleMove);
     }
     //up-right
     possibleMove = { x: horseIndex.x + 1, y: horseIndex.y - 2 };
@@ -214,7 +218,7 @@ export default class Node {
       this.checkTableLimits(possibleMove) &&
       !this.checkIfBoxIsDominated(possibleMove)
     ) {
-      this.validMoves.push(possibleMove);
+      validMoves.push(possibleMove);
     }
     //down
     //down-left
@@ -224,7 +228,7 @@ export default class Node {
       this.checkTableLimits(possibleMove) &&
       !this.checkIfBoxIsDominated(possibleMove)
     ) {
-      this.validMoves.push(possibleMove);
+      validMoves.push(possibleMove);
     }
     //down-right
     possibleMove = { x: horseIndex.x + 1, y: horseIndex.y + 2 };
@@ -233,7 +237,7 @@ export default class Node {
       this.checkTableLimits(possibleMove) &&
       !this.checkIfBoxIsDominated(possibleMove)
     ) {
-      this.validMoves.push(possibleMove);
+      validMoves.push(possibleMove);
     }
     //left
     //left-top
@@ -243,7 +247,7 @@ export default class Node {
       this.checkTableLimits(possibleMove) &&
       !this.checkIfBoxIsDominated(possibleMove)
     ) {
-      this.validMoves.push(possibleMove);
+      validMoves.push(possibleMove);
     }
     //left-down
     possibleMove = { x: horseIndex.x - 2, y: horseIndex.y + 1 };
@@ -252,7 +256,7 @@ export default class Node {
       this.checkTableLimits(possibleMove) &&
       !this.checkIfBoxIsDominated(possibleMove)
     ) {
-      this.validMoves.push(possibleMove);
+      validMoves.push(possibleMove);
     }
     //Right
     //Right-top
@@ -262,7 +266,7 @@ export default class Node {
       this.checkTableLimits(possibleMove) &&
       !this.checkIfBoxIsDominated(possibleMove)
     ) {
-      this.validMoves.push(possibleMove);
+      validMoves.push(possibleMove);
     }
     //Right-left
     possibleMove = { x: horseIndex.x + 2, y: horseIndex.y + 1 };
@@ -271,12 +275,9 @@ export default class Node {
       this.checkTableLimits(possibleMove) &&
       !this.checkIfBoxIsDominated(possibleMove)
     ) {
-      this.validMoves.push(possibleMove);
+      validMoves.push(possibleMove);
     }
-  }
-
-  getValidMoves() {
-    return this.validMoves;
+    return validMoves;
   }
 
   /*This function dominates the boxes adjacents to the bonus*/
