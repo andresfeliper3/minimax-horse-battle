@@ -220,7 +220,7 @@ export default class Controller {
   }
 
   getGameBoard() {
-    return [...this.gameboard];
+    return this.gameboard;
   }
 
   /* This function checks if the box is within the limits to move*/

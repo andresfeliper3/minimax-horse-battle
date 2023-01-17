@@ -35,7 +35,7 @@ export default class MiniMax {
   executeMinimax() {
     this.nodes = []
     console.log("BEFORE initial Gameboard", this.initialGameboard)
-    const initialNode = new Node(this.copy(this.initialGameboard), this.iaHorseIndex, null, MAX, this.iaHorseIndex)
+    const initialNode = new Node(this.copy(this.initialGameboard), this.iaHorseIndex, this.playerHorseIndex, null, MAX, this.iaHorseIndex)
     console.log("AFTER initial Gameboard", initialNode.getGameboard())
 
     initialNode.setDepth(0);
@@ -64,11 +64,11 @@ export default class MiniMax {
           if (father) {
             const utilityChanged = father.setUtility(utility);
             if (utilityChanged) {
-              father.setIaHorseIndexSelected(currentNode.getHorseIndex());
+              father.setIaHorseIndexSelected(currentNode.getIaHorseIndex());
             }
           }
           else {
-            return currentNode.getHorseIndex();
+            return currentNode.getIaHorseIndex();
           }
 
           //delete
@@ -82,13 +82,12 @@ export default class MiniMax {
       else {
         if (currentNode.getDepth() == this.maxDepth) {
           currentNode.generateUtility();
-          console.log("GENERATED UTILITY in controller", currentNode.getUtility());
         }
         const utility = currentNode.getUtility(); //todo: heuristics
         const father = currentNode.getFather();
         const utilityChanged = father.setUtility(utility);
         if (utilityChanged) {
-          father.setIaHorseIndexSelected(currentNode.getHorseIndex());
+          father.setIaHorseIndexSelected(currentNode.getIaHorseIndex());
         }
         //delete
         this.nodes.splice(currentNodeIndex, 1);
@@ -111,9 +110,10 @@ export default class MiniMax {
     return matrix.map(row => [...row]);
   }
   expandNode(node) {
-    const horseIndex = node.getHorseIndex();
+    // const horseIndex = node.getHorseIndex();
+    const horseIndex = node.getType() == MAX ? node.getIaHorseIndex() : node.getPlayerHorseIndex();
     console.log("IMPRIMÍ ESTOS CABALLOS", this.iaHorseIndex, this.playerHorseIndex)
-    console.log("node details: depth", node.getDepth(), "horseindex", node.getHorseIndex())
+    console.log("node details: depth", node.getDepth(), "iaHorseindex", node.getIaHorseIndex())
     console.log("gameboard", node.getGameboard())
     node.updateValidMoves(horseIndex)
     let validMoves = node.getValidMoves()
@@ -123,7 +123,14 @@ export default class MiniMax {
     if (validMoves.length > 0) {
       node.setExpanded();
       validMoves.forEach(move => {
-        const newNode = new Node(this.copy(node.getGameboard()), move, node, !node.getType(), horseIndex);
+        let newNode;
+        if (node.getType() == MAX) {
+          newNode = new Node(this.copy(node.getGameboard()), move, node.getPlayerHorseIndex(), node, !node.getType(), horseIndex);
+        }
+        else {
+          newNode = new Node(this.copy(node.getGameboard()), node.getIaHorseIndex(), move, node, !node.getType(), horseIndex);
+        }
+
         newNode.setDepth(node.getDepth() + 1);
         console.log("new node depth is: ", newNode.getDepth())
         this.nodes.push(newNode);

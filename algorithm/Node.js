@@ -12,7 +12,7 @@ const MAX = true;
 const MIN = false;
 export default class Node {
 
-  constructor(gameboard, horseIndex, father, type, previousHorseIndex) {
+  constructor(gameboard, iaHorseIndex, playerHorseIndex, father, type, previousHorseIndex) {
     this.type = type;
     if (this.type == MAX) {
       this.utility = -Infinity
@@ -20,15 +20,29 @@ export default class Node {
     else {
       this.utility = Infinity
     }
+    this.playerHorseIndex = playerHorseIndex;
     this.previousHorseIndex = previousHorseIndex;
-    this.horseIndex = horseIndex;
+    this.iaHorseIndex = iaHorseIndex;
     this.gameboard = gameboard;
-    this.gameboard[horseIndex.y][horseIndex.x] = type == MAX ? IA_HORSE : PLAYER_HORSE;
-    this.gameboard[previousHorseIndex.y][previousHorseIndex.x] = type == MAX ? DOMINATED_BY_IA : DOMINATED_BY_PLAYER;
-
+    this.gameboard[iaHorseIndex.y][iaHorseIndex.x] = IA_HORSE;
+    this.gameboard[playerHorseIndex.y][playerHorseIndex.x] = PLAYER_HORSE;
     this.father = father
+    if (type == MAX) {
+      if (this.father) {
+        this.gameboard[this.father.getPlayerHorseIndex().y][this.father.getPlayerHorseIndex().x] = DOMINATED_BY_PLAYER;
+      }
+    }
+    else {
+      this.gameboard[this.father.getIaHorseIndex().y][this.father.getIaHorseIndex().x] = DOMINATED_BY_IA;
+    }
+
+
+
   }
 
+  getPreviousHorseIndex() {
+    return this.previousHorseIndex;
+  }
   getGameboard() {
     return this.gameboard;
   }
@@ -75,8 +89,11 @@ export default class Node {
   setIaHorseIndexSelected(iaHorseIndexSelected) {
     this.iaHorseIndexSelected = iaHorseIndexSelected;
   }
-  getHorseIndex() {
-    return this.horseIndex
+  getIaHorseIndex() {
+    return this.iaHorseIndex
+  }
+  getPlayerHorseIndex() {
+    return this.playerHorseIndex;
   }
 
   hasExpanded() {
@@ -87,14 +104,15 @@ export default class Node {
   }
 
   generateUtility() {
-    this.updateValidMoves(this.horseIndex)
-    let myPossibleMovesAmount = this.validMoves.length;
-    let fatherPossibleMovesAmount = this.father.getValidMoves().length; //todo
+    // this.updateValidMoves(this.horseIndex)
+    // let myPossibleMovesAmount = this.validMoves.length;
+    // let fatherPossibleMovesAmount = this.father.getValidMoves().length; //todo
 
-    let dominatedByMax = this.countDominatedBoxes()[0];
-    let dominatedByMin = this.countDominatedBoxes()[1];
+    let dominated = this.countDominatedBoxes()
+    let dominatedByMax = dominated[0];
+    let dominatedByMin = dominated[1];
     this.utility = dominatedByMax - dominatedByMin;
-    console.log("GENERATED UTILITY in Node", this.utility)
+    console.log("GENERATED UTILITY in Node", this.utility, "bymax", dominatedByMax, "byMin", dominatedByMin, "type", this.type)
     console.log("GAMEBOARD IN TERMINAL NODE", this.gameboard);
   }
 
@@ -102,11 +120,11 @@ export default class Node {
     let dominatedByMax = 0;
     let dominatedByMin = 0;
     for (let y = 0; y < this.gameboard.length; y++) {
-      for (let x = 0; x < this.gameboard.length[0]; x++) {
-        if (this.gameboard[y][x] == DOMINATED_BY_IA || IA_HORSE) {
+      for (let x = 0; x < this.gameboard[y].length; x++) {
+        if (this.gameboard[y][x] == DOMINATED_BY_IA || this.gameboard[y][x] == IA_HORSE) {
           dominatedByMax++;
         }
-        else if (this.gameboard[y][x] == DOMINATED_BY_PLAYER || PLAYER_HORSE) {
+        else if (this.gameboard[y][x] == DOMINATED_BY_PLAYER || this.gameboard[y][x] == PLAYER_HORSE) {
           dominatedByMin++;
         }
       }
