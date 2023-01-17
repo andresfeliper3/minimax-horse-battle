@@ -105,10 +105,6 @@ function drawGrid() {
         paintBox(getIndexFromPosition(position), "red");
         iaBoxesAcum++;
       }
-      if (gameOver) {
-        alert(`${calculateWinner().toString()} WINS`);
-        gameOver = false;
-      }
 
       //Draw the possible horse moves
       validMoves.forEach((Vmove) => {
@@ -189,7 +185,7 @@ function dominateBox() {
             " Wins!"
           );
           clearInterval(timer);
-          gameOver = true;
+          alert(`${calculateWinner().toString()} WINS`);
         }
       }, 1000);
     } else {
