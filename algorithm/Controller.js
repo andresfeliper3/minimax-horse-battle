@@ -8,9 +8,13 @@ const LEVEL = 4;
 
 export default class Controller {
   constructor() {
-    this.turn = PLAYER_TURN;
+    this.turn = IA_TURN;
     this.boxesPerRow = 8;
     this.boxesPerColumn = 8;
+    this.playerPoints = 1;
+    this.iaPoints = 1;
+    this.createInitialGameboard();
+    this.executeMinimax();
   }
 
   createInitialGameboard() {
@@ -180,6 +184,7 @@ export default class Controller {
     if (!this.playerBlocked) {
       this.changeTurn();
     }
+    this.updatePoints();
     console.log("Controller: FINISH EXECUTE MINIMAX", this.gameboard);
     return this.iaHorseIndex;
   }
@@ -263,5 +268,37 @@ export default class Controller {
     ) {
       this.gameboard[possibleBox.y][possibleBox.x] = DOMINATED_BY_IA;
     }
+  }
+
+  getIaPoints() {
+    return this.IaPoints;
+  }
+
+  getPlayerPoints() {
+    return this.playerPoints;
+  }
+
+  updatePoints() {
+    let iaAcc = 0;
+    let playerAcc = 0;
+    for (let y = 0; y < this.boxesPerRow; y++) {
+      for (let x = 0; x < this.boxesPerColumn; x++) {
+        if (
+          this.gameboard[y][x] == DOMINATED_BY_IA ||
+          this.gameboard[y][x] == IA_HORSE
+        ) {
+          iaAcc++;
+        } else if (
+          this.gameboard[y][x] == DOMINATED_BY_PLAYER ||
+          this.gameboard[y][x] == PLAYER_HORSE
+        ) {
+          playerAcc++;
+        }
+      }
+    }
+    this.iaPoints = iaAcc;
+    this.playerPoints = playerAcc;
+    let text = "Jugador: " + this.playerPoints + " IA: " + this.iaPoints;
+    points.textContent = text;
   }
 }

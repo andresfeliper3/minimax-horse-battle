@@ -49,6 +49,7 @@ export default class MiniMax {
     this.depth = 0;
 
     while (true) {
+      console.log("Profundidad: ", this.depth);
       let objCurrentNode = this.searchByDepth(this.depth);
       while (objCurrentNode == null) {
         this.depth--;
@@ -61,7 +62,16 @@ export default class MiniMax {
       ) {
         const isExpanded = this.expandNode(currentNode);
         if (!isExpanded) {
-          const utility = -1 * currentNode.getUtility();
+          currentNode.generateUtility();
+          const utility = currentNode.getUtility();
+          console.log(
+            "LA UTILIDAD ES: ",
+            utility,
+            "iahorseIndex",
+            currentNode.getIaHorseIndex(),
+            "playerIndex: ",
+            currentNode.getPlayerHorseIndex()
+          );
           const father = currentNode.getFather();
           if (father) {
             const utilityChanged = father.setUtility(utility);
