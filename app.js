@@ -16,7 +16,7 @@ window.draw = draw;
 window.mouseClicked = mouseClicked;
 
 const controller = new Controller();
-controller.createInitialGameboard();
+//controller.createInitialGameboard();
 
 const boxesPerRow = 8;
 
@@ -29,6 +29,8 @@ let gameOver = false;
 
 let iaBoxesAcum;
 let playerBoxesAcum;
+let iaPoints = 0;
+let playerPoints = 0;
 
 let playerHorseIndex = controller.getPlayerHorseIndex();
 let iaHorseIndex = controller.getIaHorseIndex();

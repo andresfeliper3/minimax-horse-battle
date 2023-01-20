@@ -127,8 +127,9 @@ export default class Node {
     let playerValidMoves = this.updateValidMoves(this.playerHorseIndex).length;
     let iaValidMoves = this.updateValidMoves(this.iaHorseIndex).length;
 
-    this.utility = dominatedByMax - dominatedByMin;
-
+    this.utility =
+      dominatedByMax - dominatedByMin + iaValidMoves - playerValidMoves;
+    /*
     console.log(
       "PLAYER: ",
       this.playerHorseIndex,
@@ -144,7 +145,8 @@ export default class Node {
       dominatedByMin,
       "DOM BY IA: ",
       dominatedByMax
-    );
+      );
+      */
     /*
     console.log(
       "GENERATED UTILITY in Node",
