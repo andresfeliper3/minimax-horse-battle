@@ -1,7 +1,7 @@
 import MiniMax from "./MiniMax.js";
 
 import { EMPTY, PLAYER_HORSE, IA_HORSE, BONUS, DOMINATED_BY_PLAYER, DOMINATED_BY_IA, IA_TURN, PLAYER_TURN, MAX, MIN } from "./Constants.js";
-import { copy } from "./Constants.js";
+import { copy, checkIfBoxIsDominated, checkTableLimits } from "./Constants.js";
 
 /*DIFICULT */
 const LEVEL = 4;
@@ -156,22 +156,26 @@ export default class Controller {
   }
 
   executeMinimax() {
-    const miniMax = new MiniMax(this.gameboard);
+    const miniMax = new MiniMax(copy(this.gameboard));
 
     miniMax.setMaxDepth(LEVEL);
     miniMax.setPlayerHorseIndex(this.playerHorseIndex);
     miniMax.setIaHorseIndex(this.iaHorseIndex);
     miniMax.setBonusIndex([...this.bonusIndex]);
+
+
     const previousIaHorseIndex = this.iaHorseIndex;
     this.gameboard[this.iaHorseIndex.y][this.iaHorseIndex.x] = DOMINATED_BY_IA;
+
+    // this.iaHorseIndex = this.generateRandomIndex();
     this.iaHorseIndex = miniMax.executeMinimax(); //when blocked, this remains running and returning index
+
     if (this.iaHorseIndex.x == previousIaHorseIndex.x && this.iaHorseIndex.y == previousIaHorseIndex.y) {
       this.iaBlocked = true;
     }
-    // this.iaHorseIndex = this.generateRandomIndex();
-    if (this.gameboard[this.iaHorseIndex.y][this.iaHorseIndex.x] == BONUS) {
-      this.dominateAdjacents(this.iaHorseIndex);
-    }
+
+    this.dominateAdjacentsWhenIaOnBonus();
+
     this.gameboard[this.iaHorseIndex.y][this.iaHorseIndex.x] = IA_HORSE;
     if (!this.playerBlocked) {
       this.changeTurn();
@@ -180,8 +184,11 @@ export default class Controller {
     return this.iaHorseIndex;
   }
 
-
-
+  dominateAdjacentsWhenIaOnBonus() {
+    if (this.gameboard[this.iaHorseIndex.y][this.iaHorseIndex.x] == BONUS) {
+      this.dominateAdjacents(this.iaHorseIndex);
+    }
+  }
   setPlayerBlocked() {
     this.playerBlocked = true;
   }
@@ -218,33 +225,7 @@ export default class Controller {
     return this.gameboard;
   }
 
-  /* This function checks if the box is within the limits to move*/
-  checkTableLimits(boxIndex) {
-    let correct = false;
-    if (
-      boxIndex.x >= 0 &&
-      boxIndex.x <= 7 &&
-      boxIndex.y >= 0 &&
-      boxIndex.y <= 7
-    ) {
-      correct = true;
-    }
-    return correct;
-  }
 
-  /*This function checks if the box is dominated*/
-  checkIfBoxIsDominated(boxIndex) {
-    let boxDominated;
-    if (
-      this.getGameBoard()[boxIndex.y][boxIndex.x] == IA_HORSE ||
-      this.getGameBoard()[boxIndex.y][boxIndex.x] == DOMINATED_BY_IA ||
-      this.getGameBoard()[boxIndex.y][boxIndex.x] == DOMINATED_BY_PLAYER
-    ) {
-      boxDominated = true;
-    }
-
-    return boxDominated;
-  }
 
   /*This function dominates the boxes adjacents to the bonus*/
   dominateAdjacents(boxIndex) {
@@ -253,32 +234,32 @@ export default class Controller {
     //left
     possibleBox = { x: boxIndex.x - 1, y: boxIndex.y };
     if (
-      this.checkTableLimits(possibleBox) &&
-      !this.checkIfBoxIsDominated(possibleBox)
+      checkTableLimits(possibleBox) &&
+      !checkIfBoxIsDominated(possibleBox, this.gameboard)
     ) {
       this.gameboard[possibleBox.y][possibleBox.x] = DOMINATED_BY_IA;
     }
     //right
     possibleBox = { x: boxIndex.x + 1, y: boxIndex.y };
     if (
-      this.checkTableLimits(possibleBox) &&
-      !this.checkIfBoxIsDominated(possibleBox)
+      checkTableLimits(possibleBox) &&
+      !checkIfBoxIsDominated(possibleBox, this.gameboard)
     ) {
       this.gameboard[possibleBox.y][possibleBox.x] = DOMINATED_BY_IA;
     }
     //up
     possibleBox = { x: boxIndex.x, y: boxIndex.y - 1 };
     if (
-      this.checkTableLimits(possibleBox) &&
-      !this.checkIfBoxIsDominated(possibleBox)
+      checkTableLimits(possibleBox) &&
+      !checkIfBoxIsDominated(possibleBox, this.gameboard)
     ) {
       this.gameboard[possibleBox.y][possibleBox.x] = DOMINATED_BY_IA;
     }
     //down
     possibleBox = { x: boxIndex.x, y: boxIndex.y + 1 };
     if (
-      this.checkTableLimits(possibleBox) &&
-      !this.checkIfBoxIsDominated(possibleBox)
+      checkTableLimits(possibleBox) &&
+      !checkIfBoxIsDominated(possibleBox, this.gameboard)
     ) {
       this.gameboard[possibleBox.y][possibleBox.x] = DOMINATED_BY_IA;
     }
