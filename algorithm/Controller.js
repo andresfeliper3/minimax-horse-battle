@@ -4,7 +4,7 @@ import { EMPTY, PLAYER_HORSE, IA_HORSE, BONUS, DOMINATED_BY_PLAYER, DOMINATED_BY
 import { copy, checkIfBoxIsDominated, checkTableLimits } from "./Constants.js";
 
 /*DIFICULT */
-const LEVEL = 4;
+const LEVEL = prompt("Ingrese el nivel de profundidad (2, 4, 6)");
 
 export default class Controller {
   constructor() {
