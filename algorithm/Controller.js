@@ -1,19 +1,10 @@
 import MiniMax from "./MiniMax.js";
 
-/** GAMEBOARD CONSTANTS */
-const EMPTY = 0;
-const PLAYER_HORSE = 1;
-const IA_HORSE = 2;
-const BONUS = 3;
-const DOMINATED_BY_PLAYER = 4;
-const DOMINATED_BY_IA = 5;
-
-/* TURN CONSTANTS */
-const IA_TURN = true;
-const PLAYER_TURN = false;
+import { EMPTY, PLAYER_HORSE, IA_HORSE, BONUS, DOMINATED_BY_PLAYER, DOMINATED_BY_IA, IA_TURN, PLAYER_TURN, MAX, MIN } from "./Constants.js";
+import { copy } from "./Constants.js";
 
 /*DIFICULT */
-const LEVEL = prompt("Escoge el nivel (2, 4, 6)");
+const LEVEL = 4;
 
 export default class Controller {
   constructor() {
@@ -24,38 +15,38 @@ export default class Controller {
 
   createInitialGameboard() {
     this.gameboard = [];
+    this.bonusIndex = [];
+
     for (let row = 0; row < this.boxesPerRow; row++) {
       this.gameboard.push([]);
     }
+
+    this.placeEveryBoxInGameboardAsEmpty();
+    this.placeRandomHorsesInGameboard();
+    this.placeRandomBonusInGameboard();
+  }
+
+  placeEveryBoxInGameboardAsEmpty() {
     for (let y = 0; y < this.boxesPerRow; y++) {
       for (let x = 0; x < this.boxesPerColumn; x++) {
         this.gameboard[y][x] = EMPTY;
       }
     }
-    this.bonusIndex = [];
+  }
+
+  placeRandomHorsesInGameboard() {
     this.playerHorseIndex = this.generateNonSuperPositionIndex();
-
-    this.gameboard[this.playerHorseIndex.y][this.playerHorseIndex.x] =
-      PLAYER_HORSE;
     this.iaHorseIndex = this.generateNonSuperPositionIndex();
+    this.gameboard[this.playerHorseIndex.y][this.playerHorseIndex.x] = PLAYER_HORSE;
     this.gameboard[this.iaHorseIndex.y][this.iaHorseIndex.x] = IA_HORSE;
+  }
 
+  placeRandomBonusInGameboard() {
     for (let i = 0; i < 3; i++) {
       const index = this.generateBonusIndex();
       this.bonusIndex.push(index);
       this.gameboard[index.y][index.x] = BONUS;
     }
-
-    console.log(this.iaHorseIndex);
-    console.log(this.gameboard);
-  }
-
-  //Generates number from zero to this.boxesPerRow - 1
-  generateRandomIndex() {
-    return {
-      x: Math.floor(Math.random() * this.boxesPerRow),
-      y: Math.floor(Math.random() * this.boxesPerColumn),
-    };
   }
 
   generateNonSuperPositionIndex() {
@@ -66,8 +57,15 @@ export default class Controller {
         break;
       }
     }
-
     return possiblePosition;
+  }
+
+  //Generates number from zero to this.boxesPerRow - 1
+  generateRandomIndex() {
+    return {
+      x: Math.floor(Math.random() * this.boxesPerRow),
+      y: Math.floor(Math.random() * this.boxesPerColumn),
+    };
   }
 
   generateBonusIndex() {
@@ -156,7 +154,7 @@ export default class Controller {
   setBonusIndex(index) {
     this.bonusIndex = index;
   }
-  //ToDo: delete minimax instance
+
   executeMinimax() {
     const miniMax = new MiniMax(this.gameboard);
 
@@ -167,10 +165,7 @@ export default class Controller {
     const previousIaHorseIndex = this.iaHorseIndex;
     this.gameboard[this.iaHorseIndex.y][this.iaHorseIndex.x] = DOMINATED_BY_IA;
     this.iaHorseIndex = miniMax.executeMinimax(); //when blocked, this remains running and returning index
-    if (
-      this.iaHorseIndex.x == previousIaHorseIndex.x &&
-      this.iaHorseIndex.y == previousIaHorseIndex.y
-    ) {
+    if (this.iaHorseIndex.x == previousIaHorseIndex.x && this.iaHorseIndex.y == previousIaHorseIndex.y) {
       this.iaBlocked = true;
     }
     // this.iaHorseIndex = this.generateRandomIndex();
@@ -185,9 +180,7 @@ export default class Controller {
     return this.iaHorseIndex;
   }
 
-  copy(matrix) {
-    return matrix.map((row) => [...row]);
-  }
+
 
   setPlayerBlocked() {
     this.playerBlocked = true;
