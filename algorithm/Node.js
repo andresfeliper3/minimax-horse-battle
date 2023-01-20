@@ -119,7 +119,7 @@ export default class Node {
   generateUtility() {
     // this.updateValidMoves(this.horseIndex)
     // let myPossibleMovesAmount = this.validMoves.length;
-    // let fatherPossibleMovesAmount = this.father.getValidMoves().length; //todo
+    // let fatherPossibleMovesAmount = this.father.getValidMoves().length; 
 
     let dominated = this.countDominatedBoxes();
     let dominatedByMax = dominated[0];
